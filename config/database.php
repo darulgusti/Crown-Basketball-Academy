@@ -45,6 +45,15 @@ function getDBConnection() {
             
             // Enable SSL/TLS for TiDB Cloud connections
             if (strpos(DB_HOST, 'tidbcloud.com') !== false) {
+                // Resolve SSL constants dynamically to support PHP 8.5+ deprecations and fallback for older PHP versions
+                $sslCaKey = defined('Pdo\\Mysql::ATTR_SSL_CA') 
+                    ? constant('Pdo\\Mysql::ATTR_SSL_CA') 
+                    : (defined('PDO::MYSQL_ATTR_SSL_CA') ? PDO::MYSQL_ATTR_SSL_CA : 1011);
+                    
+                $sslVerifyKey = defined('Pdo\\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') 
+                    ? constant('Pdo\\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') 
+                    : (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT') ? PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT : 1014);
+
                 $caPaths = [
                     '/etc/ssl/certs/ca-certificates.crt',
                     '/etc/pki/tls/certs/ca-bundle.crt',
@@ -53,12 +62,12 @@ function getDBConnection() {
                 ];
                 foreach ($caPaths as $path) {
                     if (file_exists($path)) {
-                        $options[PDO::MYSQL_ATTR_SSL_CA] = $path;
+                        $options[$sslCaKey] = $path;
                         break;
                     }
                 }
-                if (!isset($options[PDO::MYSQL_ATTR_SSL_CA])) {
-                    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+                if (!isset($options[$sslCaKey])) {
+                    $options[$sslVerifyKey] = false;
                 }
             }
             
