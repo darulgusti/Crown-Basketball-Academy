@@ -1096,16 +1096,34 @@ select.form-control {
 @media (max-width: 768px) {
     /* Responsive typography scaling */
     h1 {
-        font-size: 1.8rem !important;
+        font-size: 1.5rem !important;
     }
     h2 {
-        font-size: 1.4rem !important;
+        font-size: 1.3rem !important;
     }
     h3 {
-        font-size: 1.15rem !important;
+        font-size: 1.1rem !important;
     }
     .page-title {
-        font-size: 1.1rem !important;
+        font-size: 0.95rem !important; /* Scaled down dashboard header title */
+        font-weight: 700 !important;
+    }
+    .navbar-brand {
+        font-size: 0.95rem !important; /* Compact brand title on mobile navbar */
+    }
+    .navbar-brand svg {
+        width: 24px !important; /* Slightly smaller logo */
+        height: 24px !important;
+    }
+    .landing-hero {
+        padding: 30px 16px !important; /* More compact hero banner spacing on mobile */
+        margin-bottom: 24px !important;
+    }
+    .landing-hero h1 {
+        font-size: 1.6rem !important;
+    }
+    .landing-hero p {
+        font-size: 0.9rem !important;
     }
     
     .form-control {
