@@ -169,3 +169,69 @@ function renderStatusBadge($status) {
     $statusClass = strtolower(str_replace(' ', '-', $status));
     return '<span class="badge badge-' . $statusClass . '">' . e($status) . '</span>';
 }
+
+/**
+ * Render sliding pagination navigation
+ * 
+ * @param int $page - Current page
+ * @param int $totalPages - Total pages
+ * @param array $getParams - $_GET parameters to merge
+ * @return string - HTML string of pagination-nav links
+ */
+function renderPaginationLinks($page, $totalPages, $getParams) {
+    if ($totalPages <= 1) return '';
+    
+    $html = '';
+    
+    // Left Arrow
+    $prevPage = $page - 1;
+    $prevUrl = '?' . http_build_query(array_merge($getParams, ['page' => $prevPage]));
+    $prevDisabled = $page <= 1 ? 'disabled' : '';
+    $html .= '<a href="' . $prevUrl . '" class="page-link ' . $prevDisabled . '">&larr;</a>';
+    
+    // Determine which page numbers to show
+    $range = [];
+    if ($totalPages <= 6) {
+        $range = range(1, $totalPages);
+    } else {
+        if ($page <= 3) {
+            $middle = [2, 3, 4];
+        } elseif ($page >= $totalPages - 2) {
+            $middle = [$totalPages - 3, $totalPages - 2, $totalPages - 1];
+        } else {
+            $middle = [$page - 1, $page, $page + 1];
+        }
+        
+        $range[] = 1;
+        if ($middle[0] > 2) {
+            $range[] = '...';
+        }
+        foreach ($middle as $m) {
+            $range[] = $m;
+        }
+        if ($middle[2] < $totalPages - 1) {
+            $range[] = '...';
+        }
+        $range[] = $totalPages;
+    }
+    
+    // Render links
+    foreach ($range as $item) {
+        if ($item === '...') {
+            $html .= '<span class="page-link-ellipsis" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; color: var(--text-secondary);">...</span>';
+        } else {
+            $url = '?' . http_build_query(array_merge($getParams, ['page' => $item]));
+            $active = $page === $item ? 'active' : '';
+            $html .= '<a href="' . $url . '" class="page-link ' . $active . '">' . $item . '</a>';
+        }
+    }
+    
+    // Right Arrow
+    $nextPage = $page + 1;
+    $nextUrl = '?' . http_build_query(array_merge($getParams, ['page' => $nextPage]));
+    $nextDisabled = $page >= $totalPages ? 'disabled' : '';
+    $html .= '<a href="' . $nextUrl . '" class="page-link ' . $nextDisabled . '">&rarr;</a>';
+    
+    return $html;
+}
+

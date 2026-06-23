@@ -1187,7 +1187,101 @@ select.form-control {
     .charts-grid {
         grid-template-columns: 1fr;
     }
+    
+    /* Constrain main app container sizing to prevent zoom-out */
+    .app-container {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    
+    .main-wrapper {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    /* Make tables fit nicely on mobile without forcing viewport overflow */
+    .custom-table th, 
+    .custom-table td {
+        padding: 10px 12px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .custom-table .btn-sm {
+        padding: 6px 10px !important;
+        font-size: 0.75rem !important;
+    }
+    
+    /* Collapse form grid layout to single column on mobile */
+    .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    /* Smaller details page headings and spacing */
+    .profile-detail-title h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .profile-detail-avatar {
+        width: 120px !important;
+        height: 120px !important;
+    }
+    
+    .detail-section {
+        padding: 16px !important;
+    }
+    
+    .profile-detail-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
 }
+
+/* Small mobile devices optimization */
+@media (max-width: 576px) {
+    /* Hide top navbar user text info on small mobile screens */
+    .top-navbar .nav-right .user-info {
+        display: none !important;
+    }
+    
+    /* Keep navbar profile summary compact */
+    .user-profile-summary {
+        gap: 0 !important;
+    }
+    
+    /* Optimize pagination buttons sizes for mobile */
+    .page-link {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+    }
+    
+    .page-link-ellipsis {
+        width: 24px !important;
+        height: 30px !important;
+        font-size: 0.8rem !important;
+    }
+    
+    .pagination-nav {
+        gap: 4px !important;
+    }
+    
+    /* Compact modals */
+    .modal-content {
+        padding: 20px !important;
+    }
+    
+    /* Navbar brand and public container improvements */
+    .public-navbar {
+        padding: 0 16px !important;
+    }
+    
+    .public-container {
+        padding: 20px 12px !important;
+    }
+}
+
 
 /* Print Styling */
 @media print {

@@ -12,6 +12,18 @@ requireAdmin();
 
 $db = getDBConnection();
 
+// Pagination logic
+$limit = 5;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+$offset = ($page - 1) * $limit;
+
+// Base query for counting
+$baseQuery = "SELECT c.id FROM coaches c JOIN users u ON c.user_id = u.id";
+$stmtTotal = $db->query("SELECT COUNT(*) FROM ($baseQuery) AS sub");
+$totalRecords = $stmtTotal->fetchColumn();
+$totalPages = ceil($totalRecords / $limit);
+
 // Fetch coaches with training days schedule and user credentials
 $sql = "SELECT c.*, u.username, u.email, GROUP_CONCAT(td.day_name ORDER BY td.id SEPARATOR ', ') as training_days
         FROM coaches c
@@ -19,7 +31,8 @@ $sql = "SELECT c.*, u.username, u.email, GROUP_CONCAT(td.day_name ORDER BY td.id
         LEFT JOIN coach_training_days ctd ON c.id = ctd.coach_id
         LEFT JOIN training_days td ON ctd.training_day_id = td.id
         GROUP BY c.id, u.id, u.username, u.email
-        ORDER BY c.created_at DESC";
+        ORDER BY c.created_at DESC
+        LIMIT $limit OFFSET $offset";
         
 $coaches = $db->query($sql)->fetchAll();
 ?>
@@ -101,6 +114,18 @@ $coaches = $db->query($sql)->fetchAll();
                 </tbody>
             </table>
         </div>
+        
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+            <div class="pagination-wrapper">
+                <div class="pagination-info">
+                    Menampilkan Halaman <?= $page ?> dari <?= $totalPages ?> (Total: <?= $totalRecords ?> Pelatih)
+                </div>
+                <nav class="pagination-nav">
+                    <?= renderPaginationLinks($page, $totalPages, $_GET) ?>
+                </nav>
+            </div>
+        <?php endif; ?>
     <?php else: ?>
         <p style="text-align: center; color: var(--text-secondary); padding: 20px 0;">Tidak ada data pelatih ditemukan.</p>
     <?php endif; ?>

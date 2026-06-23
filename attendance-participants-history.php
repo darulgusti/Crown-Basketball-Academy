@@ -106,7 +106,7 @@ $pageTitle = "Riwayat Absensi Peserta";
 require_once __DIR__ . '/includes/header.php';
 
 // Pagination setup
-$limit = 15;
+$limit = 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
@@ -255,11 +255,7 @@ $monthsList = [
                     Menampilkan Halaman <?= $page ?> dari <?= $totalPages ?> (Total: <?= $totalRecords ?> Catatan)
                 </div>
                 <nav class="pagination-nav">
-                    <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="page-link <?= $page <= 1 ? 'disabled' : '' ?>">&larr;</a>
-                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                        <a href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>" class="page-link <?= $page === $i ? 'active' : '' ?>"><?= $i ?></a>
-                    <?php endfor; ?>
-                    <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="page-link <?= $page >= $totalPages ? 'disabled' : '' ?>">&rarr;</a>
+                    <?= renderPaginationLinks($page, $totalPages, $_GET) ?>
                 </nav>
             </div>
         <?php endif; ?>
