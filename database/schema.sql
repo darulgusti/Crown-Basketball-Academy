@@ -1,5 +1,7 @@
 -- Database Schema for Crown Basketball Academy
 
+SET FOREIGN_KEY_CHECKS = 0;
+
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -104,3 +106,5 @@ CREATE TABLE IF NOT EXISTS coach_attendances (
     FOREIGN KEY (coach_id) REFERENCES coaches(id) ON DELETE CASCADE,
     INDEX idx_coach_attendances_date (date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET FOREIGN_KEY_CHECKS = 1;
