@@ -18,7 +18,7 @@ $sql = "SELECT c.*, u.username, u.email, GROUP_CONCAT(td.day_name ORDER BY td.id
         JOIN users u ON c.user_id = u.id
         LEFT JOIN coach_training_days ctd ON c.id = ctd.coach_id
         LEFT JOIN training_days td ON ctd.training_day_id = td.id
-        GROUP BY c.id
+        GROUP BY c.id, u.id, u.username, u.email
         ORDER BY c.created_at DESC";
         
 $coaches = $db->query($sql)->fetchAll();

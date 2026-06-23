@@ -46,7 +46,7 @@ if ($role === 'admin') {
     $dayStats = $db->query("SELECT td.day_name, COUNT(ptd.participant_id) as count 
                             FROM training_days td 
                             LEFT JOIN participant_training_days ptd ON td.id = ptd.training_day_id 
-                            GROUP BY td.id")->fetchAll();
+                            GROUP BY td.id, td.day_name")->fetchAll();
                             
     // 6. Today Participant Attendance Summary
     $pAttendanceStats = $db->query("SELECT status, COUNT(*) as count 
