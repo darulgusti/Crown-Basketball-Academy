@@ -27,6 +27,7 @@ if (!$currentUser) {
 
 $errors = [];
 $adminErrors = [];
+$action = '';
 
 // Handle Post Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
