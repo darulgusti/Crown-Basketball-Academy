@@ -16,9 +16,10 @@ $db = getDBConnection();
 $errors = [];
 $successMessage = null;
 
-// Get date and session inputs (default to today and 'Sesi 1')
+// Get selected date. The database still requires a session value, so use one
+// internal value without exposing session choices in the attendance UI.
 $date = $_GET['date'] ?? date('Y-m-d');
-$session = trim($_GET['session'] ?? 'Sesi 1');
+$session = 'Regular';
 
 // Determine day name in Indonesian based on date
 $dayIndex = date('N', strtotime($date));
@@ -39,7 +40,7 @@ $stmtP = $db->prepare($sqlParticipants);
 $stmtP->execute([$dayName]);
 $participants = $stmtP->fetchAll();
 
-// Fetch existing attendance records for this date & session
+// Fetch existing attendance records for this date
 $sqlExisting = "SELECT participant_id, status, notes, recorded_by 
                  FROM participant_attendances 
                  WHERE date = ? AND session = ?";
@@ -89,8 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->commit();
             
             // Reload page or reload data
-            setFlashMessage('success', 'Absensi peserta untuk tanggal ' . formatIndoDate($date) . ' (' . $session . ') berhasil disimpan.');
-            header("Location: attendance-participants.php?date=" . $date . "&session=" . urlencode($session));
+            setFlashMessage('success', 'Absensi peserta untuk tanggal ' . formatIndoDate($date) . ' berhasil disimpan.');
+            header("Location: attendance-participants.php?date=" . urlencode($date));
             exit;
             
         } catch (Exception $e) {
@@ -107,7 +108,7 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Tab Actions -->
 <div class="card-actions" style="margin-bottom: 24px;">
     <div style="display: flex; gap: 8px;">
-        <a href="attendance-participants.php?date=<?= $date ?>&session=<?= urlencode($session) ?>" class="btn btn-primary">
+        <a href="attendance-participants.php?date=<?= urlencode($date) ?>" class="btn btn-primary">
             Pencatatan Absensi
         </a>
         <a href="attendance-participants-history.php" class="btn btn-secondary">
@@ -125,15 +126,6 @@ require_once __DIR__ . '/includes/header.php';
                     <label for="date">Pilih Tanggal Latihan</label>
                     <input type="date" name="date" id="date" class="form-control" value="<?= e($date) ?>" onchange="this.form.submit()">
                 </div>
-                
-                <div class="form-group" style="min-width: 200px;">
-                    <label for="session">Sesi Latihan</label>
-                    <select name="session" id="session" class="form-control" onchange="this.form.submit()">
-                        <option value="Sesi 1" <?= $session === 'Sesi 1' ? 'selected' : '' ?>>Sesi 1 (Pagi)</option>
-                        <option value="Sesi 2" <?= $session === 'Sesi 2' ? 'selected' : '' ?>>Sesi 2 (Siang)</option>
-                        <option value="Sesi 3" <?= $session === 'Sesi 3' ? 'selected' : '' ?>>Sesi 3 (Sore)</option>
-                    </select>
-                </div>
             </div>
             
             <div style="display: flex; align-items: flex-end; padding-top: 20px;">
@@ -150,7 +142,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="chart-header" style="margin-bottom: 24px;">
         <span class="chart-title">Daftar Hadir Peserta Jadwal Hari <?= $dayName ?></span>
         <span style="font-size: 0.85rem; color: var(--text-secondary);">
-            Tanggal: <strong><?= formatIndoDate($date) ?></strong> | Sesi: <strong><?= e($session) ?></strong>
+            Tanggal: <strong><?= formatIndoDate($date) ?></strong>
         </span>
     </div>
 
@@ -165,7 +157,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php endif; ?>
 
     <?php if (count($participants) > 0): ?>
-        <form action="attendance-participants.php?date=<?= $date ?>&session=<?= urlencode($session) ?>" method="POST">
+        <form action="attendance-participants.php?date=<?= urlencode($date) ?>" method="POST">
             <?= csrfField(); ?>
             
             <div class="table-responsive">

@@ -53,7 +53,7 @@ if (!empty($statusFilter)) {
     $params[] = $statusFilter;
 }
 
-$queryStr .= " ORDER BY pa.date DESC, pa.session ASC, p.name ASC";
+$queryStr .= " ORDER BY pa.date DESC, p.name ASC";
 
 // ----------------------------------------------------
 // INTEGRATED EXPORT ACTION DETECTOR
@@ -79,7 +79,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'export') {
         'Tanggal Latihan',
         'No. Pendaftaran',
         'Nama Lengkap',
-        'Sesi Latihan',
         'Status Kehadiran',
         'Catatan',
         'Dicatat Oleh'
@@ -90,7 +89,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'export') {
             $r['date'],
             $r['registration_number'],
             $r['name'],
-            $r['session'],
             $r['status'],
             $r['notes'] ?: '-',
             $r['recorder_name'] ?: '-'
@@ -223,7 +221,6 @@ $monthsList = [
                     <tr>
                         <th>Tanggal Latihan</th>
                         <th>Nama Lengkap</th>
-                        <th>Sesi</th>
                         <th>Status Kehadiran</th>
                         <th>Catatan</th>
                         <th>Dicatat Oleh</th>
@@ -234,7 +231,6 @@ $monthsList = [
                         <tr>
                             <td><strong><?= formatIndoDate($h['date']) ?></strong></td>
                             <td><strong><?= e($h['name']) ?></strong></td>
-                            <td><?= e($h['session']) ?></td>
                             <td><?= renderStatusBadge($h['status']) ?></td>
                             <td style="white-space: normal; max-width: 250px; font-size: 0.9rem; color: var(--text-secondary);">
                                 <?= $h['notes'] ? e($h['notes']) : '-' ?>
