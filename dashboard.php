@@ -280,7 +280,7 @@ if ($role === 'admin') {
         <div class="metric-card">
             <div class="metric-info">
                 <h3>Jadwal Melatih Anda</h3>
-                <div class="metric-value" style="font-size: 0.95rem; font-weight: 600; line-height: 1.4; color: var(--accent); margin-top: 8px;">
+                <div class="metric-value metric-value-text">
                     <?= count($coachSchedules) > 0 ? e(implode(', ', $coachSchedules)) : 'Belum Ada Jadwal' ?>
                 </div>
             </div>
@@ -295,7 +295,7 @@ if ($role === 'admin') {
         <div class="metric-card">
             <div class="metric-info">
                 <h3>Jadwal Hari Ini</h3>
-                <div class="metric-value" style="font-size: 1.25rem;">
+                <div class="metric-value metric-value-status">
                     <?= $isScheduledToday ? '<span style="color:var(--success)">Ada Jadwal (' . $todayDayName . ')</span>' : '<span style="color:var(--text-secondary)">Tidak Ada Jadwal</span>' ?>
                 </div>
             </div>

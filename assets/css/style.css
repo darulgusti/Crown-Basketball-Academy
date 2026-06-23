@@ -352,6 +352,19 @@ a {
     color: var(--text-primary);
 }
 
+.metric-value-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--accent);
+    margin-top: 8px;
+}
+
+.metric-value-status {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
 .metric-icon {
     width: 48px;
     height: 48px;
@@ -1207,6 +1220,19 @@ select.form-control {
     
     .metric-value {
         font-size: 1.4rem !important;
+    }
+    
+    .metric-value-text {
+        font-size: 0.8rem !important;
+        margin-top: 4px !important;
+    }
+    
+    .metric-value-status {
+        font-size: 0.95rem !important;
+    }
+    
+    .metrics-grid > .metric-card:last-child:nth-child(odd) {
+        grid-column: 1 / span 2 !important;
     }
     
     .metric-icon {
