@@ -181,9 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
 
-        <div style="margin-top: 20px; font-size: 0.9rem; color: var(--text-secondary);">
-            Belum memiliki akun? <a href="register.php" style="color: var(--accent); font-weight: 600;">Daftar di sini</a>
-        </div>
+
 
         <a href="index.php" class="back-link" style="margin-top: 15px;">&larr; Kembali ke Portal Publik</a>
     </div>
