@@ -1188,6 +1188,38 @@ select.form-control {
         grid-template-columns: 1fr;
     }
     
+    .metrics-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .metric-card {
+        padding: 12px !important;
+        border-radius: 8px !important;
+        min-height: 80px !important;
+    }
+    
+    .metric-info h3 {
+        font-size: 0.7rem !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .metric-value {
+        font-size: 1.4rem !important;
+    }
+    
+    .metric-icon {
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 8px !important;
+    }
+    
+    .metric-icon svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+    
     /* Constrain main app container sizing to prevent zoom-out */
     .app-container {
         max-width: 100% !important;
