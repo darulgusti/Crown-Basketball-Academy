@@ -52,25 +52,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($file['size'] > $maxSize) {
                 $errors[] = "Ukuran foto maksimal 2MB.";
             } else {
-                $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-                $newFileName = 'avatar_' . $userId . '_' . time() . '.' . $ext;
-                $uploadDir = __DIR__ . '/uploads/avatars/';
-                $uploadPath = $uploadDir . $newFileName;
+                $fileData = file_get_contents($file['tmp_name']);
+                if ($fileData !== false) {
+                    $base64 = base64_encode($fileData);
+                    $avatarDataUri = 'data:' . $file['type'] . ';base64,' . $base64;
 
-                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-                    // Delete old avatar if exists
-                    if (!empty($currentUser['avatar'])) {
-                        $oldPath = $uploadDir . $currentUser['avatar'];
-                        if (file_exists($oldPath)) unlink($oldPath);
+                    // Clean up old local avatar file if it was a file upload and directory is writable
+                    if (!empty($currentUser['avatar']) && strpos($currentUser['avatar'], 'data:') !== 0) {
+                        $oldPath = __DIR__ . '/uploads/avatars/' . $currentUser['avatar'];
+                        if (file_exists($oldPath) && is_writable(dirname($oldPath))) {
+                            @unlink($oldPath);
+                        }
                     }
+
                     $stmtAv = $db->prepare("UPDATE users SET avatar = ? WHERE id = ?");
-                    $stmtAv->execute([$newFileName, $userId]);
-                    $_SESSION['avatar'] = $newFileName;
+                    $stmtAv->execute([$avatarDataUri, $userId]);
+                    $_SESSION['avatar'] = $avatarDataUri;
+                    
                     setFlashMessage('success', 'Foto profil berhasil diperbarui.');
                     header("Location: profile.php");
                     exit;
                 } else {
-                    $errors[] = "Gagal menyimpan foto ke server.";
+                    $errors[] = "Gagal membaca file foto.";
                 }
             }
         }
@@ -238,8 +241,18 @@ require_once __DIR__ . '/includes/header.php';
 
         <div onclick="document.getElementById('avatar-input').click()" title="Klik untuk ganti foto profil"
              style="position: relative; width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 12px auto; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-            <?php if (!empty($currentUser['avatar']) && file_exists(__DIR__ . '/uploads/avatars/' . $currentUser['avatar'])): ?>
-                <img src="uploads/avatars/<?= e($currentUser['avatar']) ?>?v=<?= time() ?>" alt="Avatar"
+            <?php 
+            $avatarUrl = '';
+            if (!empty($currentUser['avatar'])) {
+                if (strpos($currentUser['avatar'], 'data:') === 0) {
+                    $avatarUrl = $currentUser['avatar'];
+                } elseif (file_exists(__DIR__ . '/uploads/avatars/' . $currentUser['avatar'])) {
+                    $avatarUrl = 'uploads/avatars/' . $currentUser['avatar'] . '?v=' . time();
+                }
+            }
+            ?>
+            <?php if (!empty($avatarUrl)): ?>
+                <img src="<?= e($avatarUrl) ?>" alt="Avatar"
                      style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 4px 15px rgba(249,115,22,0.3);">
             <?php else: ?>
                 <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; color: #fff; box-shadow: 0 4px 15px rgba(249,115,22,0.3);">

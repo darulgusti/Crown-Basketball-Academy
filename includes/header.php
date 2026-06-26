@@ -64,8 +64,21 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     <span class="user-role badge badge-active"><?= e($_SESSION['role'] === 'admin' ? 'Admin' : 'Pelatih') ?></span>
                     <div class="user-profile-summary" style="background: none; padding: 0;">
                         <div class="user-avatar" style="position: relative; overflow: hidden;">
-                            <?php if (!empty($_SESSION['avatar']) && file_exists(__DIR__ . '/../uploads/avatars/' . $_SESSION['avatar'])): ?>
-                                <img src="uploads/avatars/<?= e($_SESSION['avatar']) ?>?v=<?= filemtime(__DIR__ . '/../uploads/avatars/' . $_SESSION['avatar']) ?>" alt="Avatar"
+                            <?php 
+                            $headerAvatarUrl = '';
+                            if (!empty($_SESSION['avatar'])) {
+                                if (strpos($_SESSION['avatar'], 'data:') === 0) {
+                                    $headerAvatarUrl = $_SESSION['avatar'];
+                                } else {
+                                    $headerFilePath = __DIR__ . '/../uploads/avatars/' . $_SESSION['avatar'];
+                                    if (file_exists($headerFilePath)) {
+                                        $headerAvatarUrl = 'uploads/avatars/' . $_SESSION['avatar'] . '?v=' . filemtime($headerFilePath);
+                                    }
+                                }
+                            }
+                            ?>
+                            <?php if (!empty($headerAvatarUrl)): ?>
+                                <img src="<?= e($headerAvatarUrl) ?>" alt="Avatar"
                                      style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                             <?php else: ?>
                                 <?= strtoupper(substr($_SESSION['username'], 0, 1)) ?>
