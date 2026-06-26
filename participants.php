@@ -108,6 +108,18 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             </svg>
             Impor Excel
         </a>
+        <?php if ($isAdmin): ?>
+            <button type="button" class="btn btn-danger" onclick="confirmAction('Hapus Semua Peserta', 'Apakah Anda yakin ingin menghapus SELURUH data peserta dari sistem? Tindakan ini akan menghapus semua biodata, riwayat latihan, dan daftar kehadiran peserta, serta tidak dapat dibatalkan.', 'participant-delete-all.php?csrf_token=<?= generateCSRFToken() ?>')">
+                <!-- Trash Icon -->
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+                Hapus Semua Peserta
+            </button>
+        <?php endif; ?>
     </div>
 </div>
 
