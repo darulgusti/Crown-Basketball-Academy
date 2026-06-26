@@ -328,7 +328,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                                 </li>
                                 <li class="card-info-item">
                                     <span>Hari Latihan:</span>
-                                    <span><?= $p['training_days'] ? e($p['training_days']) : 'Belum memilih' ?></span>
+                                    <span><?= $p['training_days'] ? e($p['training_days']) : '-' ?></span>
                                 </li>
                             </ul>
                             
@@ -340,7 +340,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                                     'height' => $p['height'] . ' cm',
                                     'weight' => $p['weight'] . ' kg',
                                     'school' => $p['school_name'],
-                                    'days' => $p['training_days'] ?: 'Belum memilih',
+                                    'days' => $p['training_days'] ?: '-',
                                     'status' => $p['status'] === 'active' ? 'Aktif' : 'Nonaktif',
                                     'photo' => $p['photo'] ? 'uploads/participants/' . $p['photo'] : null,
                                     'initials' => strtoupper(substr($p['name'], 0, 1))

@@ -79,7 +79,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
 ?>
 
 <!-- Header Toolbar Actions -->
-<div class="card-actions" style="margin-bottom: 24px;">
+<div class="card-actions" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
     <div style="display: flex; gap: 10px;">
         <a href="participant-add.php" class="btn btn-primary">
             <!-- Add icon -->
@@ -120,47 +120,24 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             </button>
         <?php endif; ?>
     </div>
-</div>
 
-<!-- Filters Panel -->
-<div class="data-card">
-    <form action="participants.php" method="GET">
-        <div class="card-actions" style="margin-bottom: 0;">
-            <div class="search-filter-box">
-                <input type="text" name="search" class="form-control" placeholder="Cari Nama ..." value="<?= e($search) ?>" style="max-width: 250px;">
-                
-                <select name="gender" class="form-control" style="max-width: 150px;">
-                    <option value="">Semua Gender</option>
-                    <option value="L" <?= $gender === 'L' ? 'selected' : '' ?>>Laki-laki</option>
-                    <option value="P" <?= $gender === 'P' ? 'selected' : '' ?>>Perempuan</option>
-                </select>
-                
+    <!-- Search Bar - Paling Kanan -->
+    <form action="participants.php" method="GET" id="search-form" style="display: flex; gap: 8px; align-items: center;">
+        <!-- Preserve hidden filter values from column headers -->
+        <?php if (!empty($gender)): ?><input type="hidden" name="gender" value="<?= e($gender) ?>"><?php endif; ?>
+        <?php if (!empty($status)): ?><input type="hidden" name="status" value="<?= e($status) ?>"><?php endif; ?>
+        <?php if ($sort !== 'newest'): ?><input type="hidden" name="sort" value="<?= e($sort) ?>"><?php endif; ?>
 
-                <select name="day" class="form-control" style="max-width: 150px;">
-                    <option value="">Hari Latihan</option>
-                    <?php foreach ($trainingDays as $td): ?>
-                        <option value="<?= $td['id'] ?>" <?= (string)$day === (string)$td['id'] ? 'selected' : '' ?>><?= e($td['day_name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                
-                <select name="status" class="form-control" style="max-width: 150px;">
-                    <option value="">Semua Status</option>
-                    <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Aktif</option>
-                    <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>>Nonaktif</option>
-                </select>
-                
-                <select name="sort" class="form-control" style="max-width: 180px;">
-                    <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Pendaftaran Terbaru</option>
-                    <option value="youngest" <?= $sort === 'youngest' ? 'selected' : '' ?>>Termuda</option>
-                    <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Tertua</option>
-                </select>
-            </div>
-            
-            <div style="display: flex; gap: 8px;">
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="participants.php" class="btn btn-secondary">Reset</a>
-            </div>
-        </div>
+        <input type="text" name="search" class="form-control" placeholder="Cari nama peserta..." value="<?= e($search) ?>" style="width: 220px;">
+        <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            Cari
+        </button>
+        <?php if (!empty($search) || !empty($gender) || !empty($status) || $sort !== 'newest'): ?>
+            <a href="participants.php" class="btn btn-secondary" style="white-space: nowrap;">Reset</a>
+        <?php endif; ?>
     </form>
 </div>
 
@@ -173,10 +150,60 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                     <tr>
                         <th style="width: 80px;">Foto</th>
                         <th>Nama Lengkap</th>
-                        <th>Gender</th>
-                        <th>Tanggal Lahir</th>
+
+                        <!-- Gender Filter Header -->
+                        <th>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span>Gender</span>
+                                <form action="participants.php" method="GET" style="margin: 0;">
+                                    <?php if (!empty($search)): ?><input type="hidden" name="search" value="<?= e($search) ?>"><?php endif; ?>
+                                    <?php if ($sort !== 'newest'): ?><input type="hidden" name="sort" value="<?= e($sort) ?>"><?php endif; ?>
+                                    <?php if (!empty($status)): ?><input type="hidden" name="status" value="<?= e($status) ?>"><?php endif; ?>
+                                    <select name="gender" onchange="this.form.submit()" style="font-size: 0.72rem; padding: 2px 4px; border-radius: 5px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; width: 100%;">
+                                        <option value="">Semua</option>
+                                        <option value="L" <?= $gender === 'L' ? 'selected' : '' ?>>Laki-laki</option>
+                                        <option value="P" <?= $gender === 'P' ? 'selected' : '' ?>>Perempuan</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </th>
+
+                        <!-- Tanggal Lahir Sort Header -->
+                        <th>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span>Tanggal Lahir</span>
+                                <form action="participants.php" method="GET" style="margin: 0;">
+                                    <?php if (!empty($search)): ?><input type="hidden" name="search" value="<?= e($search) ?>"><?php endif; ?>
+                                    <?php if (!empty($gender)): ?><input type="hidden" name="gender" value="<?= e($gender) ?>"><?php endif; ?>
+                                    <?php if (!empty($status)): ?><input type="hidden" name="status" value="<?= e($status) ?>"><?php endif; ?>
+                                    <select name="sort" onchange="this.form.submit()" style="font-size: 0.72rem; padding: 2px 4px; border-radius: 5px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; width: 100%;">
+                                        <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Tidak ada</option>
+                                        <option value="youngest" <?= $sort === 'youngest' ? 'selected' : '' ?>>Termuda</option>
+                                        <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Tertua</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </th>
+
                         <th>Hari Latihan</th>
-                        <th>Status</th>
+
+                        <!-- Status Filter Header -->
+                        <th>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span>Status</span>
+                                <form action="participants.php" method="GET" style="margin: 0;">
+                                    <?php if (!empty($search)): ?><input type="hidden" name="search" value="<?= e($search) ?>"><?php endif; ?>
+                                    <?php if (!empty($gender)): ?><input type="hidden" name="gender" value="<?= e($gender) ?>"><?php endif; ?>
+                                    <?php if ($sort !== 'newest'): ?><input type="hidden" name="sort" value="<?= e($sort) ?>"><?php endif; ?>
+                                    <select name="status" onchange="this.form.submit()" style="font-size: 0.72rem; padding: 2px 4px; border-radius: 5px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; width: 100%;">
+                                        <option value="">Semua</option>
+                                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Aktif</option>
+                                        <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </th>
+
                         <th style="text-align: center; width: 220px;">Aksi</th>
                     </tr>
                 </thead>
@@ -194,7 +221,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                             </td>
                             <td><strong><?= e($p['name']) ?></strong></td>
                             <td><?= $p['gender'] === 'L' ? 'Laki-laki' : 'Perempuan' ?></td>
-                            <td><?= formatIndoDate($p['birth_date']) ?></td>
+                            <td><?= $p['birth_date'] ? formatIndoDate($p['birth_date']) : '-' ?></td>
                             <td>
                                 <span style="font-size: 0.85rem; color: var(--text-secondary);">
                                     <?= $p['training_days'] ? e($p['training_days']) : '-' ?>

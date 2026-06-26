@@ -90,7 +90,7 @@ $age = $today->diff($birthDate)->y;
             </div>
             <div class="detail-row">
                 <span class="detail-label">Tempat Lahir</span>
-                <span class="detail-val"><?= e($p['birth_place']) ?></span>
+                <span class="detail-val"><?= e($p['birth_place'] ?: '-') ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Tanggal Lahir</span>
@@ -98,23 +98,23 @@ $age = $today->diff($birthDate)->y;
             </div>
             <div class="detail-row">
                 <span class="detail-label">Tinggi Badan</span>
-                <span class="detail-val"><?= $p['height'] ?> cm</span>
+                <span class="detail-val"><?= $p['height'] ? $p['height'] . ' cm' : '-' ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Berat Badan</span>
-                <span class="detail-val"><?= $p['weight'] ?> kg</span>
+                <span class="detail-val"><?= $p['weight'] ? $p['weight'] . ' kg' : '-' ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Asal Sekolah</span>
-                <span class="detail-val"><?= e($p['school_name']) ?></span>
+                <span class="detail-val"><?= e($p['school_name'] ?: '-') ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">No HP / WhatsApp</span>
-                <span class="detail-val" style="color: var(--accent);"><?= e($p['phone']) ?></span>
+                <span class="detail-val" style="color: var(--accent);"><?= e($p['phone'] ?: '-') ?></span>
             </div>
             <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
                 <span class="detail-label">Alamat Lengkap</span>
-                <span class="detail-val" style="text-align: left; font-weight: 500; font-size: 0.95rem; line-height: 1.4; color: var(--text-primary);"><?= e($p['address']) ?></span>
+                <span class="detail-val" style="text-align: left; font-weight: 500; font-size: 0.95rem; line-height: 1.4; color: var(--text-primary);"><?= e($p['address'] ?: '-') ?></span>
             </div>
         </div>
     </div>
@@ -127,7 +127,7 @@ $age = $today->diff($birthDate)->y;
             <div class="detail-list">
                 <div class="detail-row">
                     <span class="detail-label">Hari Latihan</span>
-                    <span class="detail-val" style="color: var(--accent);"><?= $p['training_days'] ? e($p['training_days']) : 'Belum memilih' ?></span>
+                    <span class="detail-val" style="color: var(--accent);"><?= $p['training_days'] ? e($p['training_days']) : '-' ?></span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Pengalaman Basket</span>
@@ -147,15 +147,15 @@ $age = $today->diff($birthDate)->y;
             <div class="detail-list">
                 <div class="detail-row">
                     <span class="detail-label">Nama Orang Tua</span>
-                    <span class="detail-val"><?= e($p['parent_name']) ?></span>
+                    <span class="detail-val"><?= e($p['parent_name'] ?: '-') ?></span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Pekerjaan</span>
-                    <span class="detail-val"><?= e($p['parent_job']) ?></span>
+                    <span class="detail-val"><?= e($p['parent_job'] ?: '-') ?></span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">No HP Wali</span>
-                    <span class="detail-val" style="color: var(--accent);"><?= e($p['parent_phone']) ?></span>
+                    <span class="detail-val" style="color: var(--accent);"><?= e($p['parent_phone'] ?: '-') ?></span>
                 </div>
             </div>
         </div>

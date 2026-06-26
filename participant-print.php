@@ -207,7 +207,7 @@ $age = $today->diff($birthDate)->y;
         <tr>
             <td class="label">Tempat / Tanggal Lahir</td>
             <td class="semi">:</td>
-            <td><?= e($p['birth_place']) ?>, <?= formatIndoDate($p['birth_date']) ?> (<?= $age ?> Tahun)</td>
+            <td><?= e($p['birth_place'] ?: '-') ?>, <?= formatIndoDate($p['birth_date']) ?> (<?= $age ?> Tahun)</td>
         </tr>
         <tr>
             <td class="label">Jenis Kelamin</td>
@@ -217,22 +217,22 @@ $age = $today->diff($birthDate)->y;
         <tr>
             <td class="label">Tinggi / Berat Badan</td>
             <td class="semi">:</td>
-            <td>Tinggi: <?= $p['height'] ?> cm | Berat: <?= $p['weight'] ?> kg</td>
+            <td>Tinggi: <?= $p['height'] ? $p['height'] . ' cm' : '-' ?> | Berat: <?= $p['weight'] ? $p['weight'] . ' kg' : '-' ?></td>
         </tr>
         <tr>
             <td class="label">Asal Sekolah</td>
             <td class="semi">:</td>
-            <td><?= e($p['school_name']) ?></td>
+            <td><?= e($p['school_name'] ?: '-') ?></td>
         </tr>
         <tr>
             <td class="label">No. HP / WhatsApp</td>
             <td class="semi">:</td>
-            <td><?= e($p['phone']) ?></td>
+            <td><?= e($p['phone'] ?: '-') ?></td>
         </tr>
         <tr>
             <td class="label">Alamat Lengkap</td>
             <td class="semi">:</td>
-            <td><?= e($p['address']) ?></td>
+            <td><?= e($p['address'] ?: '-') ?></td>
         </tr>
     </table>
 
@@ -262,17 +262,17 @@ $age = $today->diff($birthDate)->y;
         <tr>
             <td class="label">Nama Orang Tua / Wali</td>
             <td class="semi">:</td>
-            <td><?= e($p['parent_name']) ?></td>
+            <td><?= e($p['parent_name'] ?: '-') ?></td>
         </tr>
         <tr>
             <td class="label">Pekerjaan Orang Tua</td>
             <td class="semi">:</td>
-            <td><?= e($p['parent_job']) ?></td>
+            <td><?= e($p['parent_job'] ?: '-') ?></td>
         </tr>
         <tr>
             <td class="label">No. HP Orang Tua / Wali</td>
             <td class="semi">:</td>
-            <td><?= e($p['parent_phone']) ?></td>
+            <td><?= e($p['parent_phone'] ?: '-') ?></td>
         </tr>
     </table>
 

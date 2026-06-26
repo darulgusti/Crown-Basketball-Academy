@@ -214,14 +214,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         // 1. Name validation
                         if (empty($name)) {
-                            $name = 'Tanpa Nama';
+                            $name = '-';
                         } elseif (strlen($name) > 100) {
                             $name = substr($name, 0, 100);
                         }
                         
                         // 2. Birth place validation
                         if (empty($birth_place)) {
-                            $birth_place = 'Belum Diisi';
+                            $birth_place = '-';
                         } elseif (strlen($birth_place) > 100) {
                             $birth_place = substr($birth_place, 0, 100);
                         }
@@ -259,21 +259,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         // 6. School validation
                         if (empty($school_name)) {
-                            $school_name = 'Belum Diisi';
+                            $school_name = '-';
                         } elseif (strlen($school_name) > 100) {
                             $school_name = substr($school_name, 0, 100);
                         }
                         
                         // 7. Phone validation
                         if (empty($phone)) {
-                            $phone = 'Belum Diisi';
+                            $phone = '-';
                         } elseif (strlen($phone) > 20) {
                             $phone = substr($phone, 0, 20);
                         }
                         
                         // 8. Address validation
                         if (empty($address)) {
-                            $address = 'Belum Diisi';
+                            $address = '-';
                         }
                         
                         // 9. Basketball experience validation
@@ -281,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (in_array($expVal, ['ya', 'yes', 'y'])) {
                             $basketball_experience = 'Ya';
                             if (empty($previous_club)) {
-                                $previous_club = 'Belum Diisi';
+                                $previous_club = '-';
                             }
                         } else {
                             $basketball_experience = 'Tidak';
@@ -312,21 +312,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         // 11. Parent validations
                         if (empty($parent_name)) {
-                            $parent_name = 'Belum Diisi';
+                            $parent_name = '-';
                         } elseif (strlen($parent_name) > 100) {
                             $parent_name = substr($parent_name, 0, 100);
                         }
                         
                         // 12. Parent job validation
                         if (empty($parent_job)) {
-                            $parent_job = 'Belum Diisi';
+                            $parent_job = '-';
                         } elseif (strlen($parent_job) > 100) {
                             $parent_job = substr($parent_job, 0, 100);
                         }
                         
                         // 13. Parent phone validation
                         if (empty($parent_phone)) {
-                            $parent_phone = 'Belum Diisi';
+                            $parent_phone = '-';
                         } elseif (strlen($parent_phone) > 20) {
                             $parent_phone = substr($parent_phone, 0, 20);
                         }
@@ -461,9 +461,9 @@ require_once __DIR__ . '/includes/header.php';
             <li><strong>Tanggal Lahir</strong> harus berformat <code>YYYY-MM-DD</code> (contoh: <code>2010-05-15</code>) atau <code>DD-MM-YYYY</code>. Jika kosong/salah, diisi dengan <code>2000-01-01</code> secara default.</li>
             <li><strong>Jenis Kelamin</strong> diisi <code>L</code> (Laki-laki) atau <code>P</code> (Perempuan). Jika tidak sesuai, diisi <code>L</code> secara default.</li>
             <li><strong>Tinggi & Berat Badan</strong> diisi angka positif. Jika kosong atau tidak valid, diset ke <code>0</code>.</li>
-            <li><strong>Pengalaman Basket</strong> diisi <code>Ya</code> atau <code>Tidak</code>. Jika memilih <code>Ya</code> tetapi nama klub sebelumnya kosong, diset ke <code>Belum Diisi</code>.</li>
+            <li><strong>Pengalaman Basket</strong> diisi <code>Ya</code> atau <code>Tidak</code>. Jika memilih <code>Ya</code> tetapi nama klub sebelumnya kosong, diset ke <code>-</code>.</li>
             <li><strong>Hari Latihan</strong> diisi nama hari yang dipisahkan dengan koma (contoh: <code>Senin, Rabu</code>). Jika dikosongkan/salah, data tetap masuk dan dapat dipilih nanti saat mengedit data peserta.</li>
-            <li><strong>Toleransi Data:</strong> Kolom wajib yang kosong atau salah format tetap akan diimpor menggunakan nilai default/placeholder sementara (seperti <code>Belum Diisi</code> atau <code>0</code>) agar Anda dapat memperbaruinya di halaman edit peserta nanti.</li>
+            <li><strong>Toleransi Data:</strong> Kolom wajib yang kosong atau salah format tetap akan diimpor menggunakan nilai default sementara (seperti <code>-</code> atau <code>0</code>) agar Anda dapat memperbaruinya di halaman edit peserta nanti.</li>
         </ul>
     </div>
 
