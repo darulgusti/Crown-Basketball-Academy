@@ -36,7 +36,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $action = $_POST['action'] ?? '';
     
-    if ($action === 'update_profile') {
+    if ($action === 'update_avatar') {
+        // Handle profile photo upload
+        if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] === UPLOAD_ERR_NO_FILE) {
+            $errors[] = "Harap pilih file foto.";
+        } else {
+            $file = $_FILES['avatar'];
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            $maxSize = 2 * 1024 * 1024; // 2MB
+
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                $errors[] = "Gagal mengunggah foto.";
+            } elseif (!in_array($file['type'], $allowedTypes)) {
+                $errors[] = "Format foto tidak didukung. Gunakan JPG, PNG, atau WEBP.";
+            } elseif ($file['size'] > $maxSize) {
+                $errors[] = "Ukuran foto maksimal 2MB.";
+            } else {
+                $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                $newFileName = 'avatar_' . $userId . '_' . time() . '.' . $ext;
+                $uploadDir = __DIR__ . '/uploads/avatars/';
+                $uploadPath = $uploadDir . $newFileName;
+
+                if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                    // Delete old avatar if exists
+                    if (!empty($currentUser['avatar'])) {
+                        $oldPath = $uploadDir . $currentUser['avatar'];
+                        if (file_exists($oldPath)) unlink($oldPath);
+                    }
+                    $stmtAv = $db->prepare("UPDATE users SET avatar = ? WHERE id = ?");
+                    $stmtAv->execute([$newFileName, $userId]);
+                    $_SESSION['avatar'] = $newFileName;
+                    setFlashMessage('success', 'Foto profil berhasil diperbarui.');
+                    header("Location: profile.php");
+                    exit;
+                } else {
+                    $errors[] = "Gagal menyimpan foto ke server.";
+                }
+            }
+        }
+        $action = 'update_avatar';
+
+    } elseif ($action === 'update_profile') {
         $username = trim($_POST['username'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $currentPassword = $_POST['current_password'] ?? '';
@@ -188,14 +228,39 @@ require_once __DIR__ . '/includes/header.php';
     
     <!-- Left Column: User Card -->
     <div class="data-card" style="text-align: center; padding: 30px 20px;">
-        <div class="user-avatar" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; font-size: 2.5rem; font-weight: 700; color: #ffffff; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);">
-            <?= strtoupper(substr($currentUser['username'], 0, 1)) ?>
+
+        <!-- Avatar with upload trigger -->
+        <form action="profile.php" method="POST" enctype="multipart/form-data" id="avatar-form">
+            <?= csrfField(); ?>
+            <input type="hidden" name="action" value="update_avatar">
+            <input type="file" name="avatar" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="document.getElementById('avatar-form').submit()">
+        </form>
+
+        <div onclick="document.getElementById('avatar-input').click()" title="Klik untuk ganti foto profil"
+             style="position: relative; width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 12px auto; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+            <?php if (!empty($currentUser['avatar']) && file_exists(__DIR__ . '/uploads/avatars/' . $currentUser['avatar'])): ?>
+                <img src="uploads/avatars/<?= e($currentUser['avatar']) ?>?v=<?= time() ?>" alt="Avatar"
+                     style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 4px 15px rgba(249,115,22,0.3);">
+            <?php else: ?>
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; color: #fff; box-shadow: 0 4px 15px rgba(249,115,22,0.3);">
+                    <?= strtoupper(substr($currentUser['username'], 0, 1)) ?>
+                </div>
+            <?php endif; ?>
+            <!-- Camera overlay -->
+            <div style="position: absolute; bottom: 2px; right: 2px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-secondary);">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                </svg>
+            </div>
         </div>
+        <p style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 16px;">Klik foto untuk mengganti</p>
+
         <h3 style="margin-bottom: 8px; font-size: 1.3rem; font-weight: 600;"><?= e($currentUser['username']) ?></h3>
         <div style="margin-bottom: 20px;">
             <span class="badge badge-active" style="padding: 6px 12px; font-size: 0.8rem; background: var(--accent-light); color: var(--accent); font-weight: 600; text-transform: uppercase;"><?= e($currentUser['role'] === 'admin' ? 'Administrator' : 'Pelatih') ?></span>
         </div>
-        
+
         <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; text-align: left;">
             <div style="margin-bottom: 12px; font-size: 0.9rem;">
                 <strong style="color: var(--text-secondary); display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px;">Alamat Email</strong>
