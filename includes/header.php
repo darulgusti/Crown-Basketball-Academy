@@ -7,9 +7,22 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/csrf.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Every page using header.php requires authentication by default
 requireAuth();
+
+// Fetch avatar from database if not set in session yet
+if (isset($_SESSION['user_id']) && !isset($_SESSION['avatar'])) {
+    try {
+        $db = getDBConnection();
+        $stmtAv = $db->prepare("SELECT avatar FROM users WHERE id = ?");
+        $stmtAv->execute([$_SESSION['user_id']]);
+        $_SESSION['avatar'] = $stmtAv->fetchColumn() ?: null;
+    } catch (Exception $e) {
+        $_SESSION['avatar'] = null;
+    }
+}
 
 // Current page filename for active menu highlights
 $currentPage = basename($_SERVER['PHP_SELF']);
@@ -50,8 +63,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <div class="nav-right">
                     <span class="user-role badge badge-active"><?= e($_SESSION['role'] === 'admin' ? 'Admin' : 'Pelatih') ?></span>
                     <div class="user-profile-summary" style="background: none; padding: 0;">
-                        <div class="user-avatar">
-                            <?= strtoupper(substr($_SESSION['username'], 0, 1)) ?>
+                        <div class="user-avatar" style="position: relative; overflow: hidden;">
+                            <?php if (!empty($_SESSION['avatar']) && file_exists(__DIR__ . '/../uploads/avatars/' . $_SESSION['avatar'])): ?>
+                                <img src="uploads/avatars/<?= e($_SESSION['avatar']) ?>?v=<?= filemtime(__DIR__ . '/../uploads/avatars/' . $_SESSION['avatar']) ?>" alt="Avatar"
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            <?php else: ?>
+                                <?= strtoupper(substr($_SESSION['username'], 0, 1)) ?>
+                            <?php endif; ?>
                         </div>
                         <div class="user-info" style="display: block;">
                             <div class="user-name" style="font-size: 0.9rem;"><?= e($_SESSION['username']) ?></div>

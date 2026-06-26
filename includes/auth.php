@@ -81,6 +81,7 @@ function loginUser($user) {
     $_SESSION['username'] = $user['username'];
     $_SESSION['email'] = $user['email'];
     $_SESSION['role'] = $user['role'];
+    $_SESSION['avatar'] = $user['avatar'] ?? null;
     
     // If user is a coach, fetch and store coach_id in session
     if ($user['role'] === 'coach') {
