@@ -220,79 +220,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $registration_date = $row[16];
                         $statusStr = $row[17];
                         
-                        $rowErrors = [];
-                        
-                        // Name validation
+                        // 1. Name validation
                         if (empty($name)) {
-                            $rowErrors[] = "Nama Lengkap wajib diisi.";
+                            $name = 'Tanpa Nama';
                         } elseif (strlen($name) > 100) {
-                            $rowErrors[] = "Nama Lengkap maksimal 100 karakter.";
+                            $name = substr($name, 0, 100);
                         }
                         
-                        // Birth place validation
+                        // 2. Birth place validation
                         if (empty($birth_place)) {
-                            $rowErrors[] = "Tempat Lahir wajib diisi.";
+                            $birth_place = 'Belum Diisi';
                         } elseif (strlen($birth_place) > 100) {
-                            $rowErrors[] = "Tempat Lahir maksimal 100 karakter.";
+                            $birth_place = substr($birth_place, 0, 100);
                         }
                         
-                        // Birth date validation
+                        // 3. Birth date validation
                         $parsedBirthDate = false;
                         if (empty($birth_date)) {
-                            $rowErrors[] = "Tanggal Lahir wajib diisi.";
+                            $parsedBirthDate = '2000-01-01';
                         } else {
                             $parsedBirthDate = parseImportDate($birth_date);
                             if (!$parsedBirthDate) {
-                                $rowErrors[] = "Format Tanggal Lahir tidak valid (Gunakan YYYY-MM-DD atau DD-MM-YYYY).";
+                                $parsedBirthDate = '2000-01-01';
                             }
                         }
                         
-                        // Gender validation
+                        // 4. Gender validation
                         $normalizedGender = strtoupper($gender);
                         if (in_array($normalizedGender, ['L', 'LAKI-LAKI', 'LAKI LAKI', 'PRIA'])) {
                             $normalizedGender = 'L';
                         } elseif (in_array($normalizedGender, ['P', 'PEREMPUAN', 'WANITA'])) {
                             $normalizedGender = 'P';
                         } else {
-                            $rowErrors[] = "Jenis Kelamin tidak valid (Harus Laki-laki / Perempuan / L / P).";
-                            $normalizedGender = '';
+                            $normalizedGender = 'L'; // Fallback default
                         }
                         
-                        // Height and Weight validation
+                        // 5. Height and Weight validation
                         $height = (int)$heightStr;
                         $weight = (int)$weightStr;
                         if (empty($heightStr) || $height <= 0) {
-                            $rowErrors[] = "Tinggi badan wajib diisi dengan angka positif.";
+                            $height = 0;
                         }
                         if (empty($weightStr) || $weight <= 0) {
-                            $rowErrors[] = "Berat badan wajib diisi dengan angka positif.";
+                            $weight = 0;
                         }
                         
-                        // School validation
+                        // 6. School validation
                         if (empty($school_name)) {
-                            $rowErrors[] = "Asal Sekolah wajib diisi.";
+                            $school_name = 'Belum Diisi';
                         } elseif (strlen($school_name) > 100) {
-                            $rowErrors[] = "Asal Sekolah maksimal 100 karakter.";
+                            $school_name = substr($school_name, 0, 100);
                         }
                         
-                        // Phone validation
+                        // 7. Phone validation
                         if (empty($phone)) {
-                            $rowErrors[] = "Nomor HP wajib diisi.";
+                            $phone = 'Belum Diisi';
                         } elseif (strlen($phone) > 20) {
-                            $rowErrors[] = "Nomor HP maksimal 20 karakter.";
+                            $phone = substr($phone, 0, 20);
                         }
                         
-                        // Address validation
+                        // 8. Address validation
                         if (empty($address)) {
-                            $rowErrors[] = "Alamat Lengkap wajib diisi.";
+                            $address = 'Belum Diisi';
                         }
                         
-                        // Basketball experience validation
+                        // 9. Basketball experience validation
                         $expVal = strtolower($basketball_experience);
                         if (in_array($expVal, ['ya', 'yes', 'y'])) {
                             $basketball_experience = 'Ya';
                             if (empty($previous_club)) {
-                                $rowErrors[] = "Nama klub sebelumnya wajib diisi jika memiliki pengalaman basket.";
+                                $previous_club = 'Belum Diisi';
                             }
                         } else {
                             $basketball_experience = 'Tidak';
@@ -300,14 +297,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                         
                         if (!empty($previous_club) && strlen($previous_club) > 100) {
-                            $rowErrors[] = "Nama klub sebelumnya maksimal 100 karakter.";
+                            $previous_club = substr($previous_club, 0, 100);
                         }
                         
-                        // Parse training days
+                        // 10. Parse training days
                         $rowDayIds = [];
-                        if (empty($training_days_str)) {
-                            $rowErrors[] = "Hari Latihan wajib diisi.";
-                        } else {
+                        if (!empty($training_days_str)) {
                             // Split by comma, ampersand, slash or semicolon
                             $dayNames = preg_split('/[\s,;&\/]+/', $training_days_str);
                             $dayNames = array_filter(array_map('trim', $dayNames));
@@ -318,50 +313,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 
                                 if (isset($dayNameToId[$dNameLower])) {
                                     $rowDayIds[] = $dayNameToId[$dNameLower];
-                                } else {
-                                    $rowErrors[] = "Hari latihan '$dName' tidak dikenal oleh sistem.";
                                 }
                             }
-                            
                             $rowDayIds = array_unique($rowDayIds);
-                            if (empty($rowDayIds) && empty($rowErrors)) {
-                                $rowErrors[] = "Gagal memetakan hari latihan. Pastikan menggunakan nama hari yang benar (e.g. Senin, Rabu).";
-                            }
                         }
                         
-                        // Parent validations
+                        // 11. Parent validations
                         if (empty($parent_name)) {
-                            $rowErrors[] = "Nama Orang Tua / Wali wajib diisi.";
+                            $parent_name = 'Belum Diisi';
                         } elseif (strlen($parent_name) > 100) {
-                            $rowErrors[] = "Nama Orang Tua / Wali maksimal 100 karakter.";
+                            $parent_name = substr($parent_name, 0, 100);
                         }
                         
-                        // Parent job validation
+                        // 12. Parent job validation
                         if (empty($parent_job)) {
-                            $rowErrors[] = "Pekerjaan Orang Tua wajib diisi.";
+                            $parent_job = 'Belum Diisi';
                         } elseif (strlen($parent_job) > 100) {
-                            $rowErrors[] = "Pekerjaan Orang Tua maksimal 100 karakter.";
+                            $parent_job = substr($parent_job, 0, 100);
                         }
                         
-                        // Parent phone validation
+                        // 13. Parent phone validation
                         if (empty($parent_phone)) {
-                            $rowErrors[] = "No. HP Orang Tua / Wali wajib diisi.";
+                            $parent_phone = 'Belum Diisi';
                         } elseif (strlen($parent_phone) > 20) {
-                            $rowErrors[] = "No. HP Orang Tua / Wali maksimal 20 karakter.";
+                            $parent_phone = substr($parent_phone, 0, 20);
                         }
                         
-                        // Registration date validation
+                        // 14. Registration date validation
                         $parsedRegDate = date('Y-m-d');
                         if (!empty($registration_date)) {
                             $parsedRegDateVal = parseImportDate($registration_date);
                             if ($parsedRegDateVal) {
                                 $parsedRegDate = $parsedRegDateVal;
-                            } else {
-                                $rowErrors[] = "Format Tanggal Pendaftaran tidak valid (Gunakan YYYY-MM-DD atau DD-MM-YYYY).";
                             }
                         }
                         
-                        // Status validation
+                        // 15. Status validation
                         $statusVal = 'active';
                         if (!empty($statusStr)) {
                             $statusLower = strtolower($statusStr);
@@ -369,48 +356,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $statusVal = 'active';
                             } elseif (in_array($statusLower, ['nonaktif', 'inactive', 'non-aktif'])) {
                                 $statusVal = 'inactive';
-                            } else {
-                                $rowErrors[] = "Status anggota harus 'Aktif' atau 'Nonaktif'.";
                             }
                         }
                         
-                        // Check registration number uniqueness
+                        // 16. Check registration number uniqueness
                         if (!empty($regNumber)) {
                             $stmtCheck = $db->prepare("SELECT COUNT(*) FROM participants WHERE registration_number = ?");
                             $stmtCheck->execute([$regNumber]);
                             if ($stmtCheck->fetchColumn() > 0) {
-                                $rowErrors[] = "Nomor Pendaftaran '$regNumber' sudah terdaftar dalam sistem.";
+                                // Duplicate registration number: auto-generate a new one to prevent error
+                                $regNumber = generateRegistrationNumber();
                             }
                         }
                         
-                        // If row errors occur, append them with line number context
-                        if (!empty($rowErrors)) {
-                            foreach ($rowErrors as $err) {
-                                $errors[] = "Baris {$rowNum} ($name): {$err}";
-                            }
-                        } else {
-                            // Save structured row data for transaction execution
-                            $rowsToInsert[] = [
-                                'registration_number' => $regNumber,
-                                'name' => $name,
-                                'birth_place' => $birth_place,
-                                'birth_date' => $parsedBirthDate,
-                                'gender' => $normalizedGender,
-                                'height' => $height,
-                                'weight' => $weight,
-                                'school_name' => $school_name,
-                                'phone' => $phone,
-                                'address' => $address,
-                                'basketball_experience' => $basketball_experience,
-                                'previous_club' => $previous_club,
-                                'parent_name' => $parent_name,
-                                'parent_job' => $parent_job,
-                                'parent_phone' => $parent_phone,
-                                'registration_date' => $parsedRegDate,
-                                'status' => $statusVal,
-                                'training_days' => $rowDayIds
-                            ];
-                        }
+                        // Save structured row data for transaction execution
+                        $rowsToInsert[] = [
+                            'registration_number' => $regNumber,
+                            'name' => $name,
+                            'birth_place' => $birth_place,
+                            'birth_date' => $parsedBirthDate,
+                            'gender' => $normalizedGender,
+                            'height' => $height,
+                            'weight' => $weight,
+                            'school_name' => $school_name,
+                            'phone' => $phone,
+                            'address' => $address,
+                            'basketball_experience' => $basketball_experience,
+                            'previous_club' => $previous_club,
+                            'parent_name' => $parent_name,
+                            'parent_job' => $parent_job,
+                            'parent_phone' => $parent_phone,
+                            'registration_date' => $parsedRegDate,
+                            'status' => $statusVal,
+                            'training_days' => $rowDayIds
+                        ];
                     }
                     
                     // Execute transaction insert if no errors found
@@ -515,13 +494,13 @@ require_once __DIR__ . '/includes/header.php';
         <h4 style="color: var(--accent); margin-bottom: 8px;">Petunjuk Pengisian File Excel:</h4>
         <ul style="padding-left: 20px; color: var(--text-secondary);">
             <li><strong>Kolom Excel</strong> harus persis sesuai template (18 kolom). Jangan mengubah baris header pertama.</li>
-            <li><strong>Tanggal Lahir / Pendaftaran</strong> harus berformat <code>YYYY-MM-DD</code> (contoh: <code>2010-05-15</code>) atau <code>DD-MM-YYYY</code>.</li>
-            <li><strong>Jenis Kelamin</strong> diisi <code>L</code> (Laki-laki) atau <code>P</code> (Perempuan).</li>
-            <li><strong>Tinggi & Berat Badan</strong> harus berupa angka bulat positif (cm & kg).</li>
-            <li><strong>Pengalaman Basket</strong> diisi <code>Ya</code> atau <code>Tidak</code>. Jika memilih <code>Ya</code>, kolom <strong>Nama Klub Sebelumnya</strong> wajib diisi.</li>
-            <li><strong>Hari Latihan</strong> diisi nama hari yang dipisahkan dengan koma (contoh: <code>Senin, Rabu</code> atau <code>Selasa, Kamis, Sabtu</code>).</li>
-            <li><strong>No. Pendaftaran</strong> bersifat opsional. Jika dikosongkan, sistem akan membuatkan nomor registrasi unik secara otomatis.</li>
-            <li>Jika terdapat satu kesalahan format data saja, seluruh proses impor akan dibatalkan (rollback) untuk menjaga keutuhan data.</li>
+            <li><strong>Tanggal Lahir / Pendaftaran</strong> harus berformat <code>YYYY-MM-DD</code> (contoh: <code>2010-05-15</code>) atau <code>DD-MM-YYYY</code>. Jika kosong/salah, diisi <code>2000-01-01</code> / tanggal hari ini.</li>
+            <li><strong>Jenis Kelamin</strong> diisi <code>L</code> (Laki-laki) atau <code>P</code> (Perempuan). Jika tidak sesuai, diisi <code>L</code> secara default.</li>
+            <li><strong>Tinggi & Berat Badan</strong> diisi angka positif. Jika kosong atau tidak valid, diset ke <code>0</code>.</li>
+            <li><strong>Pengalaman Basket</strong> diisi <code>Ya</code> atau <code>Tidak</code>. Jika memilih <code>Ya</code> tetapi nama klub sebelumnya kosong, diset ke <code>Belum Diisi</code>.</li>
+            <li><strong>Hari Latihan</strong> diisi nama hari yang dipisahkan dengan koma (contoh: <code>Senin, Rabu</code>). Jika dikosongkan/salah, data tetap masuk dan dapat dipilih nanti saat mengedit data peserta.</li>
+            <li><strong>No. Pendaftaran</strong> bersifat opsional. Jika dikosongkan atau sudah terdaftar, sistem akan membuatkan nomor registrasi unik baru secara otomatis.</li>
+            <li><strong>Toleransi Data:</strong> Kolom wajib yang kosong atau salah format tetap akan diimpor menggunakan nilai default/placeholder sementara (seperti <code>Belum Diisi</code> atau <code>0</code>) agar Anda dapat memperbaruinya di halaman edit peserta nanti.</li>
         </ul>
     </div>
 
