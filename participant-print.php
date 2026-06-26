@@ -55,19 +55,6 @@ $age = $today->diff($birthDate)->y;
             padding-bottom: 15px;
             margin-bottom: 30px;
         }
-        .logo-placeholder {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #000;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.5rem;
-            margin-right: 20px;
-        }
         .header-text h1 {
             font-size: 20pt;
             margin: 0 0 5px;
@@ -166,9 +153,7 @@ $age = $today->diff($birthDate)->y;
         <button onclick="window.close()" style="padding: 10px 20px; background-color: #ccc; color: #000; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; margin-left: 5px;">Tutup</button>
     </div>
 
-    <!-- Letter Head -->
     <div class="print-header">
-        <div class="logo-placeholder">CBA</div>
         <div class="header-text">
             <h1>Crown Basketball Academy</h1>
             <p>Alamat: Gg. Basket No. 10, Jakarta Selatan | Telp: +62 812-3456-789 | Email: info@crownbasketball.com</p>
