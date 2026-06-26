@@ -72,7 +72,6 @@ $age = $today->diff($birthDate)->y;
             <h1><?= e($p['name']) ?></h1>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <?= renderStatusBadge($p['status'] === 'active' ? 'Aktif' : 'Nonaktif') ?>
-                <span style="color: var(--text-secondary); font-size: 0.9rem;">Mendaftar pada: <strong><?= formatIndoDate($p['registration_date']) ?></strong></span>
             </div>
         </div>
     </div>

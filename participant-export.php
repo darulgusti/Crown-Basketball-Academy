@@ -29,8 +29,7 @@ $queryStr = "SELECT p.*, GROUP_CONCAT(td.day_name ORDER BY td.id SEPARATOR ' & '
 $params = [];
 
 if (!empty($search)) {
-    $queryStr .= " AND (p.name LIKE ? OR p.registration_number LIKE ?)";
-    $params[] = "%{$search}%";
+    $queryStr .= " AND p.name LIKE ?";
     $params[] = "%{$search}%";
 }
 
@@ -70,7 +69,6 @@ require_once __DIR__ . '/includes/SimpleXLSXGen.php';
 $excelData = [];
 // Define Headers
 $excelData[] = [
-    'No. Pendaftaran',
     'Nama Lengkap',
     'Tempat Lahir',
     'Tanggal Lahir',
@@ -86,13 +84,11 @@ $excelData[] = [
     'Nama Orang Tua / Wali',
     'Pekerjaan Orang Tua',
     'No. HP Orang Tua / Wali',
-    'Tanggal Pendaftaran',
     'Status Anggota'
 ];
 
 foreach ($participants as $p) {
     $excelData[] = [
-        $p['registration_number'],
         $p['name'],
         $p['birth_place'],
         $p['birth_date'],
@@ -108,7 +104,6 @@ foreach ($participants as $p) {
         $p['parent_name'],
         $p['parent_job'],
         $p['parent_phone'],
-        $p['registration_date'],
         $p['status'] === 'active' ? 'Aktif' : 'Nonaktif'
     ];
 }

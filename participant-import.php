@@ -17,7 +17,6 @@ $db = getDBConnection();
 // 1. Template Generation Action (Supports xlsx only)
 if (isset($_GET['template']) && $_GET['template'] === 'xlsx') {
     $headers = [
-        'No. Pendaftaran',
         'Nama Lengkap',
         'Tempat Lahir',
         'Tanggal Lahir',
@@ -33,12 +32,10 @@ if (isset($_GET['template']) && $_GET['template'] === 'xlsx') {
         'Nama Orang Tua / Wali',
         'Pekerjaan Orang Tua',
         'No. HP Orang Tua / Wali',
-        'Tanggal Pendaftaran',
         'Status Anggota'
     ];
     
     $row1 = [
-        '', // Auto-generated No. Pendaftaran if empty
         'Budi Santoso',
         'Jakarta',
         '2010-05-15',
@@ -54,12 +51,10 @@ if (isset($_GET['template']) && $_GET['template'] === 'xlsx') {
         'Joko Santoso',
         'Swasta',
         '081234567891',
-        '', // Auto current date if empty
         'Aktif'
     ];
     
     $row2 = [
-        '', // Auto-generated No. Pendaftaran if empty
         'Siti Aminah',
         'Bandung',
         '2012-08-20',
@@ -75,7 +70,6 @@ if (isset($_GET['template']) && $_GET['template'] === 'xlsx') {
         'Ahmad',
         'Guru',
         '082345678902',
-        '', // Auto current date if empty
         'Aktif'
     ];
 
@@ -178,8 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($parserSuccess) {
-                if (count($headers) < 18) {
-                    $errors[] = "Format kolom tidak cocok. Harus terdapat 18 kolom sesuai template.";
+                if (count($headers) < 16) {
+                    $errors[] = "Format kolom tidak cocok. Harus terdapat 16 kolom sesuai template.";
                 } else {
                     $rowsToInsert = [];
                     $rowNum = 1; // Row 1 is header
@@ -194,31 +188,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                         
                         // Pad row if columns are missing
-                        if (count($row) < 18) {
-                            $row = array_pad($row, 18, '');
+                        if (count($row) < 16) {
+                            $row = array_pad($row, 16, '');
                         }
                         
                         // Trim all fields
                         $row = array_map('trim', $row);
                         
-                        $regNumber = $row[0];
-                        $name = $row[1];
-                        $birth_place = $row[2];
-                        $birth_date = $row[3];
-                        $gender = $row[4];
-                        $heightStr = $row[5];
-                        $weightStr = $row[6];
-                        $school_name = $row[7];
-                        $phone = $row[8];
-                        $address = $row[9];
-                        $basketball_experience = $row[10];
-                        $previous_club = $row[11];
-                        $training_days_str = $row[12];
-                        $parent_name = $row[13];
-                        $parent_job = $row[14];
-                        $parent_phone = $row[15];
-                        $registration_date = $row[16];
-                        $statusStr = $row[17];
+                        $name = $row[0];
+                        $birth_place = $row[1];
+                        $birth_date = $row[2];
+                        $gender = $row[3];
+                        $heightStr = $row[4];
+                        $weightStr = $row[5];
+                        $school_name = $row[6];
+                        $phone = $row[7];
+                        $address = $row[8];
+                        $basketball_experience = $row[9];
+                        $previous_club = $row[10];
+                        $training_days_str = $row[11];
+                        $parent_name = $row[12];
+                        $parent_job = $row[13];
+                        $parent_phone = $row[14];
+                        $statusStr = $row[15];
                         
                         // 1. Name validation
                         if (empty($name)) {
@@ -339,15 +331,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $parent_phone = substr($parent_phone, 0, 20);
                         }
                         
-                        // 14. Registration date validation
-                        $parsedRegDate = date('Y-m-d');
-                        if (!empty($registration_date)) {
-                            $parsedRegDateVal = parseImportDate($registration_date);
-                            if ($parsedRegDateVal) {
-                                $parsedRegDate = $parsedRegDateVal;
-                            }
-                        }
-                        
                         // 15. Status validation
                         $statusVal = 'active';
                         if (!empty($statusStr)) {
@@ -359,19 +342,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                         }
                         
-                        // 16. Check registration number uniqueness
-                        if (!empty($regNumber)) {
-                            $stmtCheck = $db->prepare("SELECT COUNT(*) FROM participants WHERE registration_number = ?");
-                            $stmtCheck->execute([$regNumber]);
-                            if ($stmtCheck->fetchColumn() > 0) {
-                                // Duplicate registration number: auto-generate a new one to prevent error
-                                $regNumber = generateRegistrationNumber();
-                            }
-                        }
-                        
                         // Save structured row data for transaction execution
                         $rowsToInsert[] = [
-                            'registration_number' => $regNumber,
                             'name' => $name,
                             'birth_place' => $birth_place,
                             'birth_date' => $parsedBirthDate,
@@ -386,7 +358,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'parent_name' => $parent_name,
                             'parent_job' => $parent_job,
                             'parent_phone' => $parent_phone,
-                            'registration_date' => $parsedRegDate,
                             'status' => $statusVal,
                             'training_days' => $rowDayIds
                         ];
@@ -401,26 +372,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $db->beginTransaction();
                                 
                                 $sqlInsert = "INSERT INTO participants (
-                                    registration_number, photo, name, birth_place, birth_date, gender, 
+                                    photo, name, birth_place, birth_date, gender, 
                                     height, weight, school_name, phone, address, basketball_experience, 
-                                    previous_club, parent_name, parent_job, parent_phone, registration_date, status
+                                    previous_club, parent_name, parent_job, parent_phone, status
                                 ) VALUES (
-                                    ?, NULL, ?, ?, ?, ?, 
+                                    NULL, ?, ?, ?, ?, 
                                     ?, ?, ?, ?, ?, ?, 
-                                    ?, ?, ?, ?, ?, ?
+                                    ?, ?, ?, ?, ?
                                 )";
                                 
                                 $stmtInsert = $db->prepare($sqlInsert);
                                 $stmtDayInsert = $db->prepare("INSERT INTO participant_training_days (participant_id, training_day_id) VALUES (?, ?)");
                                 
                                 foreach ($rowsToInsert as $data) {
-                                    $regNum = $data['registration_number'];
-                                    if (empty($regNum)) {
-                                        $regNum = generateRegistrationNumber();
-                                    }
-                                    
                                     $stmtInsert->execute([
-                                        $regNum,
                                         $data['name'],
                                         $data['birth_place'],
                                         $data['birth_date'],
@@ -435,7 +400,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         $data['parent_name'],
                                         $data['parent_job'],
                                         $data['parent_phone'],
-                                        $data['registration_date'],
                                         $data['status']
                                     ]);
                                     
@@ -493,13 +457,12 @@ require_once __DIR__ . '/includes/header.php';
     <div style="background-color: var(--accent-light); border-left: 4px solid var(--accent); padding: 16px; border-radius: 8px; margin-bottom: 24px; font-size: 0.9rem; line-height: 1.5;">
         <h4 style="color: var(--accent); margin-bottom: 8px;">Petunjuk Pengisian File Excel:</h4>
         <ul style="padding-left: 20px; color: var(--text-secondary);">
-            <li><strong>Kolom Excel</strong> harus persis sesuai template (18 kolom). Jangan mengubah baris header pertama.</li>
-            <li><strong>Tanggal Lahir / Pendaftaran</strong> harus berformat <code>YYYY-MM-DD</code> (contoh: <code>2010-05-15</code>) atau <code>DD-MM-YYYY</code>. Jika kosong/salah, diisi <code>2000-01-01</code> / tanggal hari ini.</li>
+            <li><strong>Kolom Excel</strong> harus persis sesuai template (16 kolom). Jangan mengubah baris header pertama.</li>
+            <li><strong>Tanggal Lahir</strong> harus berformat <code>YYYY-MM-DD</code> (contoh: <code>2010-05-15</code>) atau <code>DD-MM-YYYY</code>. Jika kosong/salah, diisi dengan <code>2000-01-01</code> secara default.</li>
             <li><strong>Jenis Kelamin</strong> diisi <code>L</code> (Laki-laki) atau <code>P</code> (Perempuan). Jika tidak sesuai, diisi <code>L</code> secara default.</li>
             <li><strong>Tinggi & Berat Badan</strong> diisi angka positif. Jika kosong atau tidak valid, diset ke <code>0</code>.</li>
             <li><strong>Pengalaman Basket</strong> diisi <code>Ya</code> atau <code>Tidak</code>. Jika memilih <code>Ya</code> tetapi nama klub sebelumnya kosong, diset ke <code>Belum Diisi</code>.</li>
             <li><strong>Hari Latihan</strong> diisi nama hari yang dipisahkan dengan koma (contoh: <code>Senin, Rabu</code>). Jika dikosongkan/salah, data tetap masuk dan dapat dipilih nanti saat mengedit data peserta.</li>
-            <li><strong>No. Pendaftaran</strong> bersifat opsional. Jika dikosongkan atau sudah terdaftar, sistem akan membuatkan nomor registrasi unik baru secara otomatis.</li>
             <li><strong>Toleransi Data:</strong> Kolom wajib yang kosong atau salah format tetap akan diimpor menggunakan nilai default/placeholder sementara (seperti <code>Belum Diisi</code> atau <code>0</code>) agar Anda dapat memperbaruinya di halaman edit peserta nanti.</li>
         </ul>
     </div>

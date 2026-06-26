@@ -73,25 +73,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db->beginTransaction();
             
-            $regNumber = generateRegistrationNumber();
-            $registrationDate = date('Y-m-d');
-            
             $sql = "INSERT INTO participants (
-                        registration_number, photo, name, birth_place, birth_date, gender, 
+                        photo, name, birth_place, birth_date, gender, 
                         height, weight, school_name, phone, address, basketball_experience, 
-                        previous_club, parent_name, parent_job, parent_phone, registration_date, status
+                        previous_club, parent_name, parent_job, parent_phone, status
                     ) VALUES (
+                        ?, ?, ?, ?, ?, 
                         ?, ?, ?, ?, ?, ?, 
-                        ?, ?, ?, ?, ?, ?, 
-                        ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?
                     )";
             
             $stmt = $db->prepare($sql);
             $stmt->execute([
-                $regNumber, $photoName, $name, $birth_place, $birth_date, $gender,
+                $photoName, $name, $birth_place, $birth_date, $gender,
                 $height, $weight, $school_name, $phone, $address, $basketball_experience,
                 ($basketball_experience === 'Ya' ? $previous_club : null), 
-                $parent_name, $parent_job, $parent_phone, $registrationDate, $status
+                $parent_name, $parent_job, $parent_phone, $status
             ]);
             
             $participantId = $db->lastInsertId();
@@ -103,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $db->commit();
-            setFlashMessage('success', 'Data peserta ' . $name . ' berhasil ditambahkan dengan No Pendaftaran ' . $regNumber . '.');
+            setFlashMessage('success', 'Data peserta ' . $name . ' berhasil ditambahkan.');
             header("Location: participants.php");
             exit;
             

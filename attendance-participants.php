@@ -30,7 +30,7 @@ $dayNamesIndo = [
 $dayName = $dayNamesIndo[$dayIndex];
 
 // Fetch active participants scheduled for this training day
-$sqlParticipants = "SELECT p.id, p.name, p.registration_number 
+$sqlParticipants = "SELECT p.id, p.name 
                     FROM participants p
                     JOIN participant_training_days ptd ON p.id = ptd.participant_id
                     JOIN training_days td ON ptd.training_day_id = td.id

@@ -21,7 +21,7 @@ $yearFilter = $_GET['year'] ?? '';
 $statusFilter = $_GET['status'] ?? '';
 
 // Build dynamic query
-$queryStr = "SELECT pa.*, p.name, p.registration_number, u.username as recorder_name 
+$queryStr = "SELECT pa.*, p.name, u.username as recorder_name 
              FROM participant_attendances pa
              JOIN participants p ON pa.participant_id = p.id
              LEFT JOIN users u ON pa.recorded_by = u.id
@@ -77,7 +77,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'export') {
     // Headers
     fputcsv($output, [
         'Tanggal Latihan',
-        'No. Pendaftaran',
         'Nama Lengkap',
         'Status Kehadiran',
         'Catatan',
@@ -87,7 +86,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'export') {
     foreach ($records as $r) {
         fputcsv($output, [
             $r['date'],
-            $r['registration_number'],
             $r['name'],
             $r['status'],
             $r['notes'] ?: '-',
@@ -122,7 +120,7 @@ $stmt->execute($params);
 $history = $stmt->fetchAll();
 
 // Fetch filter selections listing
-$participantsList = $db->query("SELECT id, name, registration_number FROM participants ORDER BY name ASC")->fetchAll();
+$participantsList = $db->query("SELECT id, name FROM participants ORDER BY name ASC")->fetchAll();
 $yearsList = $db->query("SELECT DISTINCT YEAR(date) as year FROM participant_attendances ORDER BY year DESC")->fetchAll(PDO::FETCH_COLUMN);
 
 // Month names helper mapping

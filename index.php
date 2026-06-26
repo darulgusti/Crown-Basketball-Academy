@@ -29,8 +29,7 @@ $queryStr = "SELECT p.*, GROUP_CONCAT(td.day_name ORDER BY td.id SEPARATOR ', ')
 $params = [];
 
 if (!empty($search)) {
-    $queryStr .= " AND (p.name LIKE ? OR p.registration_number LIKE ?)";
-    $params[] = "%{$search}%";
+    $queryStr .= " AND p.name LIKE ?";
     $params[] = "%{$search}%";
 }
 
@@ -336,7 +335,6 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                             <div class="card-footer">
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="showPublicDetail(<?= e(json_encode([
                                     'name' => $p['name'],
-                                    'reg_num' => $p['registration_number'],
                                     'gender' => $p['gender'] === 'L' ? 'Laki-laki' : 'Perempuan',
                                     'birth_place_date' => $p['birth_place'] . ', ' . formatIndoDate($p['birth_date']),
                                     'height' => $p['height'] . ' cm',
@@ -344,7 +342,6 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                                     'school' => $p['school_name'],
                                     'days' => $p['training_days'] ?: 'Belum memilih',
                                     'status' => $p['status'] === 'active' ? 'Aktif' : 'Nonaktif',
-                                    'reg_date' => formatIndoDate($p['registration_date']),
                                     'photo' => $p['photo'] ? 'uploads/participants/' . $p['photo'] : null,
                                     'initials' => strtoupper(substr($p['name'], 0, 1))
                                 ])) ?>)">Detail Publik</button>
@@ -409,10 +406,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                         <span class="detail-label">Jadwal Hari Latihan</span>
                         <span class="detail-val" id="m-days" style="color: var(--accent);"></span>
                     </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Tanggal Pendaftaran</span>
-                        <span class="detail-val" id="m-reg-date"></span>
-                    </div>
+
                     <div class="detail-row">
                         <span class="detail-label">Status Keanggotaan</span>
                         <span class="detail-val" id="m-status"></span>
@@ -442,7 +436,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             document.getElementById('m-height-weight').textContent = data.height + ' / ' + data.weight;
             document.getElementById('m-school').textContent = data.school;
             document.getElementById('m-days').textContent = data.days;
-            document.getElementById('m-reg-date').textContent = data.reg_date;
+
             document.getElementById('m-status').textContent = data.status;
             
             if (data.photo) {

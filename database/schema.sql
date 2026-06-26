@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS training_days (
 
 CREATE TABLE IF NOT EXISTS participants (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    registration_number VARCHAR(50) NOT NULL UNIQUE,
     photo VARCHAR(255) DEFAULT NULL,
     name VARCHAR(100) NOT NULL,
     birth_place VARCHAR(100) NOT NULL,
@@ -52,7 +51,6 @@ CREATE TABLE IF NOT EXISTS participants (
     parent_name VARCHAR(100) NOT NULL,
     parent_job VARCHAR(100) NOT NULL,
     parent_phone VARCHAR(20) NOT NULL,
-    registration_date DATE NOT NULL,
     status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

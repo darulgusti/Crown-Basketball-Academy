@@ -26,8 +26,7 @@ $queryStr = "SELECT p.*, GROUP_CONCAT(td.day_name ORDER BY td.id SEPARATOR ', ')
 $params = [];
 
 if (!empty($search)) {
-    $queryStr .= " AND (p.name LIKE ? OR p.registration_number LIKE ?)";
-    $params[] = "%{$search}%";
+    $queryStr .= " AND p.name LIKE ?";
     $params[] = "%{$search}%";
 }
 

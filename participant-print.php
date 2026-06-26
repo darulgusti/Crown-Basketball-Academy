@@ -199,11 +199,6 @@ $age = $today->diff($birthDate)->y;
                 <td class="semi">:</td>
                 <td><?= $p['status'] === 'active' ? 'AKTIF' : 'NONAKTIF' ?></td>
             </tr>
-            <tr>
-                <td class="label">Tanggal Terdaftar</td>
-                <td class="semi">:</td>
-                <td><?= formatIndoDate($p['registration_date']) ?></td>
-            </tr>
         </table>
     </div>
 

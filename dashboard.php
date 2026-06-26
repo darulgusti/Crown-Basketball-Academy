@@ -87,7 +87,7 @@ if ($role === 'admin') {
     $coachSchedules = $stmtAllSched->fetchAll(PDO::FETCH_COLUMN);
     
     // 3. Participants scheduled today and their attendance status (if taken)
-    $stmtPToday = $db->prepare("SELECT p.id, p.name, p.registration_number, pa.status as attendance_status, pa.session
+    $stmtPToday = $db->prepare("SELECT p.id, p.name, pa.status as attendance_status, pa.session
                                  FROM participants p
                                  JOIN participant_training_days ptd ON p.id = ptd.participant_id
                                  JOIN training_days td ON ptd.training_day_id = td.id
