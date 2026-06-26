@@ -147,11 +147,6 @@ $age = $today->diff($birthDate)->y;
 </head>
 <body>
 
-    <!-- Floating Print Button (Only visible on screen, not on print) -->
-    <div class="no-print" style="position: fixed; top: 20px; right: 20px; z-index: 999;">
-        <button onclick="window.print()" style="padding: 10px 20px; background-color: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; border-radius: 4px;">Cetak Halaman Ini</button>
-        <button onclick="window.close()" style="padding: 10px 20px; background-color: #ccc; color: #000; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; margin-left: 5px;">Tutup</button>
-    </div>
 
     <div class="print-header">
         <div class="header-text">
