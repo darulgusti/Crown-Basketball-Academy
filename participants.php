@@ -153,35 +153,62 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
 
                         <!-- Gender Filter Header -->
                         <th>
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
-                                <span>Gender</span>
-                                <form action="participants.php" method="GET" style="margin: 0;">
-                                    <?php if (!empty($search)): ?><input type="hidden" name="search" value="<?= e($search) ?>"><?php endif; ?>
-                                    <?php if ($sort !== 'newest'): ?><input type="hidden" name="sort" value="<?= e($sort) ?>"><?php endif; ?>
-                                    <?php if (!empty($status)): ?><input type="hidden" name="status" value="<?= e($status) ?>"><?php endif; ?>
-                                    <select name="gender" onchange="this.form.submit()" style="font-size: 0.72rem; padding: 2px 4px; border-radius: 5px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; width: 100%;">
-                                        <option value="">Semua</option>
-                                        <option value="L" <?= $gender === 'L' ? 'selected' : '' ?>>Laki-laki</option>
-                                        <option value="P" <?= $gender === 'P' ? 'selected' : '' ?>>Perempuan</option>
-                                    </select>
-                                </form>
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                    <span>Gender</span>
+                                    <div class="col-filter-wrap" style="position: relative; display: inline-block;">
+                                        <button type="button" class="col-filter-btn <?= !empty($gender) ? 'col-filter-btn--active' : '' ?>" onclick="toggleColFilter('filter-gender')" title="Filter Gender">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </button>
+                                        <div id="filter-gender" class="col-filter-dropdown" style="display:none;">
+                                            <?php
+                                            $genderParams = array_merge($_GET, ['gender' => '']);
+                                            $genderParamsL = array_merge($_GET, ['gender' => 'L']);
+                                            $genderParamsP = array_merge($_GET, ['gender' => 'P']);
+                                            unset($genderParams['page'], $genderParamsL['page'], $genderParamsP['page']);
+                                            ?>
+                                            <a href="participants.php?<?= http_build_query($genderParams) ?>" class="col-filter-option <?= empty($gender) ? 'active' : '' ?>">Semua</a>
+                                            <a href="participants.php?<?= http_build_query($genderParamsL) ?>" class="col-filter-option <?= $gender === 'L' ? 'active' : '' ?>">Laki-laki</a>
+                                            <a href="participants.php?<?= http_build_query($genderParamsP) ?>" class="col-filter-option <?= $gender === 'P' ? 'active' : '' ?>">Perempuan</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php if (!empty($gender)): ?>
+                                    <a href="participants.php?<?= http_build_query(array_merge($_GET, ['gender' => ''])) ?>" class="col-filter-badge">
+                                        <?= $gender === 'L' ? 'Laki-laki' : 'Perempuan' ?> ✕
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </th>
 
                         <!-- Tanggal Lahir Sort Header -->
                         <th>
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
-                                <span>Tanggal Lahir</span>
-                                <form action="participants.php" method="GET" style="margin: 0;">
-                                    <?php if (!empty($search)): ?><input type="hidden" name="search" value="<?= e($search) ?>"><?php endif; ?>
-                                    <?php if (!empty($gender)): ?><input type="hidden" name="gender" value="<?= e($gender) ?>"><?php endif; ?>
-                                    <?php if (!empty($status)): ?><input type="hidden" name="status" value="<?= e($status) ?>"><?php endif; ?>
-                                    <select name="sort" onchange="this.form.submit()" style="font-size: 0.72rem; padding: 2px 4px; border-radius: 5px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; width: 100%;">
-                                        <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Tidak ada</option>
-                                        <option value="youngest" <?= $sort === 'youngest' ? 'selected' : '' ?>>Termuda</option>
-                                        <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Tertua</option>
-                                    </select>
-                                </form>
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                    <span>Tanggal Lahir</span>
+                                    <div class="col-filter-wrap" style="position: relative; display: inline-block;">
+                                        <button type="button" class="col-filter-btn <?= $sort !== 'newest' ? 'col-filter-btn--active' : '' ?>" onclick="toggleColFilter('filter-sort')" title="Urut Tanggal Lahir">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </button>
+                                        <div id="filter-sort" class="col-filter-dropdown" style="display:none;">
+                                            <?php
+                                            $sortParamsDefault = array_merge($_GET, ['sort' => 'newest']);
+                                            $sortParamsYoung  = array_merge($_GET, ['sort' => 'youngest']);
+                                            $sortParamsOld    = array_merge($_GET, ['sort' => 'oldest']);
+                                            unset($sortParamsDefault['page'], $sortParamsYoung['page'], $sortParamsOld['page']);
+                                            ?>
+                                            <a href="participants.php?<?= http_build_query($sortParamsDefault) ?>" class="col-filter-option <?= $sort === 'newest' ? 'active' : '' ?>">Tidak ada</a>
+                                            <a href="participants.php?<?= http_build_query($sortParamsYoung) ?>"  class="col-filter-option <?= $sort === 'youngest' ? 'active' : '' ?>">Termuda</a>
+                                            <a href="participants.php?<?= http_build_query($sortParamsOld) ?>"   class="col-filter-option <?= $sort === 'oldest' ? 'active' : '' ?>">Tertua</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php if ($sort !== 'newest'): ?>
+                                    <?php $sortParamsReset = array_merge($_GET, ['sort' => 'newest']); unset($sortParamsReset['page']); ?>
+                                    <a href="participants.php?<?= http_build_query($sortParamsReset) ?>" class="col-filter-badge">
+                                        <?= $sort === 'youngest' ? 'Termuda' : 'Tertua' ?> ✕
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </th>
 
@@ -189,18 +216,32 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
 
                         <!-- Status Filter Header -->
                         <th>
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
-                                <span>Status</span>
-                                <form action="participants.php" method="GET" style="margin: 0;">
-                                    <?php if (!empty($search)): ?><input type="hidden" name="search" value="<?= e($search) ?>"><?php endif; ?>
-                                    <?php if (!empty($gender)): ?><input type="hidden" name="gender" value="<?= e($gender) ?>"><?php endif; ?>
-                                    <?php if ($sort !== 'newest'): ?><input type="hidden" name="sort" value="<?= e($sort) ?>"><?php endif; ?>
-                                    <select name="status" onchange="this.form.submit()" style="font-size: 0.72rem; padding: 2px 4px; border-radius: 5px; border: 1px solid var(--bg-tertiary); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; width: 100%;">
-                                        <option value="">Semua</option>
-                                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Aktif</option>
-                                        <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>>Tidak Aktif</option>
-                                    </select>
-                                </form>
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <div style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                    <span>Status</span>
+                                    <div class="col-filter-wrap" style="position: relative; display: inline-block;">
+                                        <button type="button" class="col-filter-btn <?= !empty($status) ? 'col-filter-btn--active' : '' ?>" onclick="toggleColFilter('filter-status')" title="Filter Status">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </button>
+                                        <div id="filter-status" class="col-filter-dropdown" style="display:none;">
+                                            <?php
+                                            $statusParamsAll      = array_merge($_GET, ['status' => '']);
+                                            $statusParamsActive   = array_merge($_GET, ['status' => 'active']);
+                                            $statusParamsInactive = array_merge($_GET, ['status' => 'inactive']);
+                                            unset($statusParamsAll['page'], $statusParamsActive['page'], $statusParamsInactive['page']);
+                                            ?>
+                                            <a href="participants.php?<?= http_build_query($statusParamsAll) ?>"      class="col-filter-option <?= empty($status) ? 'active' : '' ?>">Semua</a>
+                                            <a href="participants.php?<?= http_build_query($statusParamsActive) ?>"   class="col-filter-option <?= $status === 'active' ? 'active' : '' ?>">Aktif</a>
+                                            <a href="participants.php?<?= http_build_query($statusParamsInactive) ?>" class="col-filter-option <?= $status === 'inactive' ? 'active' : '' ?>">Tidak Aktif</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php if (!empty($status)): ?>
+                                    <?php $statusParamsReset = array_merge($_GET, ['status' => '']); unset($statusParamsReset['page']); ?>
+                                    <a href="participants.php?<?= http_build_query($statusParamsReset) ?>" class="col-filter-badge">
+                                        <?= $status === 'active' ? 'Aktif' : 'Tidak Aktif' ?> ✕
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         </th>
 
@@ -290,6 +331,128 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
         <p style="text-align: center; color: var(--text-secondary); padding: 20px 0;">Tidak ada data peserta ditemukan.</p>
     <?php endif; ?>
 </div>
+
+<!-- Column Filter Styles & Script -->
+<style>
+/* Filter button (chevron icon) */
+.col-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--bg-tertiary);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+}
+.col-filter-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+.col-filter-btn--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.col-filter-btn--active:hover {
+    background: var(--accent);
+    color: #fff;
+    opacity: 0.85;
+}
+
+/* Floating dropdown panel */
+.col-filter-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-secondary);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    min-width: 130px;
+    z-index: 999;
+    overflow: hidden;
+    animation: dropdownFade 0.12s ease;
+}
+@keyframes dropdownFade {
+    from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Each option link */
+.col-filter-option {
+    display: block;
+    padding: 9px 14px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+}
+.col-filter-option:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+.col-filter-option.active {
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(var(--accent-rgb, 99, 179, 237), 0.08);
+}
+
+/* Active filter badge below column name */
+.col-filter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s;
+    cursor: pointer;
+    white-space: nowrap;
+    align-self: flex-start;
+}
+.col-filter-badge:hover {
+    opacity: 0.8;
+}
+</style>
+
+<script>
+function toggleColFilter(id) {
+    var all = ['filter-gender', 'filter-sort', 'filter-status'];
+    all.forEach(function(filterId) {
+        var el = document.getElementById(filterId);
+        if (!el) return;
+        if (filterId === id) {
+            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    var isInsideWrap = e.target.closest('.col-filter-wrap');
+    if (!isInsideWrap) {
+        ['filter-gender', 'filter-sort', 'filter-status'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+    }
+});
+</script>
 
 <?php
 require_once __DIR__ . '/includes/footer.php';
