@@ -39,9 +39,7 @@ if ($role === 'admin') {
         if ($gs['gender'] === 'P') $femaleCount = $gs['count'];
     }
     
-    // 4. Participants by Year of Birth
-    $yearStats = $db->query("SELECT YEAR(birth_date) as year, COUNT(*) as count FROM participants GROUP BY YEAR(birth_date) ORDER BY year DESC LIMIT 5")->fetchAll();
-    
+
     // 5. Participants by Training Day
     $dayStats = $db->query("SELECT td.day_name, COUNT(ptd.participant_id) as count 
                             FROM training_days td 
@@ -229,34 +227,7 @@ if ($role === 'admin') {
         
     </div>
 
-    <div class="charts-grid">
-        <!-- Year of Birth Stats -->
-        <div class="chart-card" style="grid-column: 1 / -1;">
-            <div class="chart-header">
-                <span class="chart-title">Distribusi Peserta Berdasarkan Tahun Lahir</span>
-            </div>
-            <div class="stats-list">
-                <?php 
-                if (count($yearStats) > 0):
-                    $maxYearCount = max(array_column($yearStats, 'count') ?: [1]);
-                    foreach ($yearStats as $ys): 
-                        $percent = ($ys['count'] / $maxYearCount) * 100;
-                    ?>
-                        <div class="stats-item">
-                            <div class="stats-label" style="width: 80px; font-weight: 500;">Tahun <?= $ys['year'] ?></div>
-                            <div class="stats-bar-wrapper">
-                                <div class="stats-bar" style="width: <?= $percent ?>%; background: linear-gradient(90deg, var(--info) 0%, var(--accent) 100%);"></div>
-                            </div>
-                            <span class="stats-count"><?= $ys['count'] ?> orang</span>
-                        </div>
-                    <?php 
-                    endforeach;
-                else: ?>
-                    <p style="color: var(--text-secondary); text-align: center; padding: 20px;">Belum ada data peserta.</p>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
+
 
 <?php elseif ($role === 'coach'): ?>
     <!-- ====================================================
