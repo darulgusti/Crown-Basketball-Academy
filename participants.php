@@ -286,16 +286,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                                             <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                         </svg>
                                     </a>
-                                    
-                                    <a href="participant-print.php?id=<?= $p['id'] ?>" target="_blank" class="btn btn-secondary btn-sm btn-icon" title="Cetak Biodata">
-                                        <!-- Print Icon -->
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polyline points="6 9 6 2 18 2 18 9"/>
-                                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                                            <rect x="6" y="14" width="12" height="8"/>
-                                        </svg>
-                                    </a>
-                                    
+
                                     <?php if ($isAdmin): ?>
                                         <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="confirmAction('Hapus Peserta', 'Apakah Anda yakin ingin menghapus peserta bernama <?= e(addslashes($p['name'])) ?>? Tindakan ini tidak dapat dibatalkan.', 'participant-delete.php?id=<?= $p['id'] ?>&csrf_token=<?= generateCSRFToken() ?>')" title="Hapus">
                                             <!-- Trash Icon -->

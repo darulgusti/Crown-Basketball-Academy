@@ -37,15 +37,7 @@ $age = $today->diff($birthDate)->y;
     <a href="participants.php" class="btn btn-secondary btn-sm">&larr; Kembali ke Daftar</a>
     
     <div style="display: flex; gap: 8px;">
-        <a href="participant-print.php?id=<?= $p['id'] ?>" target="_blank" class="btn btn-secondary">
-            <!-- Print Icon -->
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
-                <polyline points="6 9 6 2 18 2 18 9"/>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                <rect x="6" y="14" width="12" height="8"/>
-            </svg>
-            Cetak Biodata
-        </a>
+
         <a href="participant-edit.php?id=<?= $p['id'] ?>" class="btn btn-primary" style="background-color: var(--info); box-shadow: none;">
             Edit Data
         </a>
