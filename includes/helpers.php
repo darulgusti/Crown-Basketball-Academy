@@ -14,17 +14,7 @@ function e($val) {
     return htmlspecialchars($val ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-/**
- * Generate a unique registration number
- * Format: CBA-YYYYMMDD-XXXX where XXXX is random
- * 
- * @return string
- */
-function generateRegistrationNumber() {
-    $datePart = date('Ymd');
-    $randPart = sprintf("%04d", mt_rand(1, 9999));
-    return "CBA-" . $datePart . "-" . $randPart;
-}
+
 
 /**
  * Set flash session message
