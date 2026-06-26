@@ -212,9 +212,9 @@ if ($role === 'admin') {
             </div>
             <div class="stats-list">
                 <?php 
-                $maxDayCount = max(array_column($dayStats, 'count') ?: [1]);
+                $maxDayCount = max(array_merge([1], array_column($dayStats, 'count')));
                 foreach ($dayStats as $ds): 
-                    $percent = ($ds['count'] / $maxDayCount) * 100;
+                    $percent = $maxDayCount > 0 ? ($ds['count'] / $maxDayCount) * 100 : 0;
                 ?>
                     <div class="stats-item">
                         <div class="stats-label" style="width: 80px; font-weight: 500;"><?= e($ds['day_name']) ?></div>
