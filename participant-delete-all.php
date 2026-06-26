@@ -27,7 +27,11 @@ try {
     $stmtPhotos = $db->query("SELECT photo FROM participants WHERE photo IS NOT NULL AND photo != ''");
     $participants = $stmtPhotos->fetchAll();
     
-    // 2. Delete all records from participants table (cascade will handle child tables)
+    // 2. Manually delete child records first to prevent foreign key constraint errors
+    $db->query("DELETE FROM participant_training_days");
+    $db->query("DELETE FROM participant_attendances");
+    
+    // 3. Delete all records from participants table
     $db->query("DELETE FROM participants");
     
     $db->commit();
