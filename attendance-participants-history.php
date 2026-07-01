@@ -134,10 +134,10 @@ $monthsList = [
 <!-- Tab Actions -->
 <div class="card-actions" style="margin-bottom: 24px;">
     <div style="display: flex; gap: 8px;">
-        <a href="attendance-participants.php" class="btn btn-secondary">
+        <a href="attendance-participants" class="btn btn-secondary">
             Pencatatan Absensi
         </a>
-        <a href="attendance-participants-history.php" class="btn btn-primary">
+        <a href="attendance-participants-history" class="btn btn-primary">
             Riwayat & Rekap Absensi
         </a>
     </div>
@@ -145,7 +145,7 @@ $monthsList = [
 
 <!-- Filters Panel -->
 <div class="data-card">
-    <form action="attendance-participants-history.php" method="GET">
+    <form action="attendance-participants-history" method="GET">
         <div class="card-actions" style="margin-bottom: 0;">
             <div class="search-filter-box">
                 
@@ -203,7 +203,7 @@ $monthsList = [
             
             <div style="display: flex; gap: 8px; align-items: flex-end;">
                 <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="attendance-participants-history.php" class="btn btn-secondary">Reset</a>
+                <a href="attendance-participants-history" class="btn btn-secondary">Reset</a>
                 <a href="?<?= http_build_query(array_merge($_GET, ['action' => 'export'])) ?>" class="btn btn-success">Ekspor CSV</a>
             </div>
         </div>

@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form action="register.php" method="POST" class="login-form">
+        <form action="register" method="POST" class="login-form">
             <?= csrfField(); ?>
             
             <div class="form-group">
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit" class="btn btn-primary">Daftar Akun</button>
         </form>
 
-        <a href="login.php" class="back-link">&larr; Kembali ke Login</a>
+        <a href="login" class="back-link">&larr; Kembali ke Login</a>
     </div>
 
 </body>

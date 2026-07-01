@@ -111,7 +111,7 @@ require_once __DIR__ . '/includes/header.php';
         <a href="attendance-participants.php?date=<?= urlencode($date) ?>" class="btn btn-primary">
             Pencatatan Absensi
         </a>
-        <a href="attendance-participants-history.php" class="btn btn-secondary">
+        <a href="attendance-participants-history" class="btn btn-secondary">
             Riwayat & Rekap Absensi
         </a>
     </div>
@@ -119,7 +119,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <!-- Selection Panel -->
 <div class="data-card">
-    <form action="attendance-participants.php" method="GET">
+    <form action="attendance-participants" method="GET">
         <div class="card-actions" style="margin-bottom: 0;">
             <div class="search-filter-box">
                 <div class="form-group" style="min-width: 200px;">

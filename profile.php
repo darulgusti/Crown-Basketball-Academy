@@ -233,7 +233,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="data-card" style="text-align: center; padding: 30px 20px;">
 
         <!-- Avatar with upload trigger -->
-        <form action="profile.php" method="POST" enctype="multipart/form-data" id="avatar-form">
+        <form action="profile" method="POST" enctype="multipart/form-data" id="avatar-form">
             <?= csrfField(); ?>
             <input type="hidden" name="action" value="update_avatar">
             <input type="file" name="avatar" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="document.getElementById('avatar-form').submit()">
@@ -304,7 +304,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             <?php endif; ?>
             
-            <form action="profile.php" method="POST">
+            <form action="profile" method="POST">
                 <?= csrfField(); ?>
                 <input type="hidden" name="action" value="update_profile">
                 
@@ -359,7 +359,7 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 <?php endif; ?>
                 
-                <form action="profile.php" method="POST">
+                <form action="profile" method="POST">
                     <?= csrfField(); ?>
                     <input type="hidden" name="action" value="add_admin">
                     

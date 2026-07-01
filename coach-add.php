@@ -125,7 +125,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="data-card">
     <div style="margin-bottom: 20px;">
-        <a href="coaches.php" class="btn btn-secondary btn-sm">&larr; Kembali</a>
+        <a href="coaches" class="btn btn-secondary btn-sm">&larr; Kembali</a>
     </div>
 
     <h2 style="margin-bottom: 24px; color: var(--accent);">Form Pendaftaran Pelatih Baru</h2>
@@ -141,7 +141,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="coach-add.php" method="POST" enctype="multipart/form-data">
+    <form action="coach-add" method="POST" enctype="multipart/form-data">
         <?= csrfField(); ?>
 
         <!-- Photo field -->
@@ -258,7 +258,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
         <div style="margin-top: 40px; display: flex; gap: 12px; justify-content: flex-end;">
-            <a href="coaches.php" class="btn btn-secondary">Batal</a>
+            <a href="coaches" class="btn btn-secondary">Batal</a>
             <button type="submit" class="btn btn-primary">Simpan Pelatih & Akun</button>
         </div>
     </form>

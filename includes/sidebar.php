@@ -6,7 +6,7 @@
 
 // If header has not resolved active page name, resolve here
 if (!isset($currentPage)) {
-    $currentPage = basename($_SERVER['PHP_SELF']);
+    $currentPage = str_replace('.php', '', basename($_SERVER['PHP_SELF']));
 }
 
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
@@ -28,8 +28,8 @@ $isCoach = isset($_SESSION['role']) && $_SESSION['role'] === 'coach';
     
     <ul class="sidebar-menu">
         <!-- Dashboard Link -->
-        <li class="menu-item <?= $currentPage === 'dashboard.php' ? 'active' : '' ?>">
-            <a href="dashboard.php">
+        <li class="menu-item <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
+            <a href="dashboard">
                 <!-- Home Icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -40,8 +40,8 @@ $isCoach = isset($_SESSION['role']) && $_SESSION['role'] === 'coach';
         </li>
         
         <!-- Participants Link (All roles can see list, edit options based on role checked inside files) -->
-        <li class="menu-item <?= in_array($currentPage, ['participants.php', 'participant-add.php', 'participant-edit.php', 'participant-detail.php']) ? 'active' : '' ?>">
-            <a href="participants.php">
+        <li class="menu-item <?= in_array($currentPage, ['participants', 'participant-add', 'participant-edit', 'participant-detail']) ? 'active' : '' ?>">
+            <a href="participants">
                 <!-- Users Icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -55,8 +55,8 @@ $isCoach = isset($_SESSION['role']) && $_SESSION['role'] === 'coach';
         
         <!-- Coaches Link (Admin Only) -->
         <?php if ($isAdmin): ?>
-        <li class="menu-item <?= in_array($currentPage, ['coaches.php', 'coach-add.php', 'coach-edit.php']) ? 'active' : '' ?>">
-            <a href="coaches.php">
+        <li class="menu-item <?= in_array($currentPage, ['coaches', 'coach-add', 'coach-edit']) ? 'active' : '' ?>">
+            <a href="coaches">
                 <!-- Whistle/User-Tie Icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -70,8 +70,8 @@ $isCoach = isset($_SESSION['role']) && $_SESSION['role'] === 'coach';
         <?php endif; ?>
         
         <!-- Participant Attendances Link (Admin & Coach) -->
-        <li class="menu-item <?= in_array($currentPage, ['attendance-participants.php', 'attendance-participants-history.php']) ? 'active' : '' ?>">
-            <a href="attendance-participants.php">
+        <li class="menu-item <?= in_array($currentPage, ['attendance-participants', 'attendance-participants-history']) ? 'active' : '' ?>">
+            <a href="attendance-participants">
                 <!-- Calendar Check Icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -88,8 +88,8 @@ $isCoach = isset($_SESSION['role']) && $_SESSION['role'] === 'coach';
     <div class="sidebar-footer">
         <ul class="sidebar-menu" style="padding: 0; margin-bottom: 0;">
             <!-- Profile Link -->
-            <li class="menu-item <?= $currentPage === 'profile.php' ? 'active' : '' ?>">
-                <a href="profile.php">
+            <li class="menu-item <?= $currentPage === 'profile' ? 'active' : '' ?>">
+                <a href="profile">
                     <!-- User Icon -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -99,7 +99,7 @@ $isCoach = isset($_SESSION['role']) && $_SESSION['role'] === 'coach';
                 </a>
             </li>
             <li class="menu-item">
-                <a href="logout.php">
+                <a href="logout">
                     <!-- Sign-Out Icon -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

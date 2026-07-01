@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form action="login.php" method="POST" class="login-form">
+        <form action="login" method="POST" class="login-form">
             <?= csrfField(); ?>
             
             <div class="form-group">
@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-        <a href="index.php" class="back-link" style="margin-top: 15px;">&larr; Kembali ke Portal Publik</a>
+        <a href="index" class="back-link" style="margin-top: 15px;">&larr; Kembali ke Portal Publik</a>
     </div>
 
 </body>

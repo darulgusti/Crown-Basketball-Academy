@@ -238,9 +238,9 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
         
         <div>
             <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="dashboard.php" class="btn btn-primary btn-sm">Dashboard &rarr;</a>
+                <a href="dashboard" class="btn btn-primary btn-sm">Dashboard &rarr;</a>
             <?php else: ?>
-                <a href="login.php" class="btn btn-primary btn-sm">Login / Register</a>
+                <a href="login" class="btn btn-primary btn-sm">Login / Register</a>
             <?php endif; ?>
         </div>
     </nav>
@@ -255,7 +255,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
 
         <!-- Filters Box -->
         <div class="data-card">
-            <form action="index.php" method="GET" class="search-filter-form">
+            <form action="index" method="GET" class="search-filter-form">
                 <div class="card-actions" style="margin-bottom: 0;">
                     <div class="search-filter-box">
                         <input type="text" name="search" class="form-control" placeholder="Cari Nama ..." value="<?= e($search) ?>" style="max-width: 250px;">
@@ -288,7 +288,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                     
                     <div style="display: flex; gap: 8px;">
                         <button type="submit" class="btn btn-primary">Filter</button>
-                        <a href="index.php" class="btn btn-secondary">Reset</a>
+                        <a href="index" class="btn btn-secondary">Reset</a>
                     </div>
                 </div>
             </form>

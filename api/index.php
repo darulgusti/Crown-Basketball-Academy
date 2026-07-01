@@ -26,6 +26,12 @@ if (strpos($path, '..') !== false) {
 // Target file in the parent folder (project root)
 $file = dirname(__DIR__) . '/' . $path;
 
+// Append .php if the exact file doesn't exist but the .php version does
+if (!file_exists($file) && file_exists($file . '.php')) {
+    $file .= '.php';
+    $path .= '.php';
+}
+
 // If it's a valid PHP file in the root
 if (file_exists($file) && is_file($file) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
     // Set the current working directory to project root so relative requires resolve correctly

@@ -81,7 +81,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
 <!-- Header Toolbar Actions -->
 <div class="card-actions" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
     <div style="display: flex; gap: 10px;">
-        <a href="participant-add.php" class="btn btn-primary">
+        <a href="participant-add" class="btn btn-primary">
             <!-- Add icon -->
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
                 <line x1="12" y1="5" x2="12" y2="19"/>
@@ -98,7 +98,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             </svg>
             Ekspor Excel
         </a>
-        <a href="participant-import.php" class="btn btn-secondary">
+        <a href="participant-import" class="btn btn-secondary">
             <!-- Upload/Import Icon -->
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -122,7 +122,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
     </div>
 
     <!-- Search Bar - Paling Kanan -->
-    <form action="participants.php" method="GET" id="search-form" style="display: flex; gap: 8px; align-items: center;">
+    <form action="participants" method="GET" id="search-form" style="display: flex; gap: 8px; align-items: center;">
         <!-- Preserve hidden filter values from column headers -->
         <?php if (!empty($gender)): ?><input type="hidden" name="gender" value="<?= e($gender) ?>"><?php endif; ?>
         <?php if (!empty($status)): ?><input type="hidden" name="status" value="<?= e($status) ?>"><?php endif; ?>
@@ -136,7 +136,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             Cari
         </button>
         <?php if (!empty($search) || !empty($gender) || !empty($status) || $sort !== 'newest'): ?>
-            <a href="participants.php" class="btn btn-secondary" style="white-space: nowrap;">Reset</a>
+            <a href="participants" class="btn btn-secondary" style="white-space: nowrap;">Reset</a>
         <?php endif; ?>
     </form>
 </div>

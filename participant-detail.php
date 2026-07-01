@@ -34,7 +34,7 @@ $age = $today->diff($birthDate)->y;
 ?>
 
 <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-    <a href="participants.php" class="btn btn-secondary btn-sm">&larr; Kembali ke Daftar</a>
+    <a href="participants" class="btn btn-secondary btn-sm">&larr; Kembali ke Daftar</a>
     
     <div style="display: flex; gap: 8px;">
 

@@ -121,7 +121,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="data-card">
     <div style="margin-bottom: 20px;">
-        <a href="participants.php" class="btn btn-secondary btn-sm">&larr; Kembali</a>
+        <a href="participants" class="btn btn-secondary btn-sm">&larr; Kembali</a>
     </div>
 
     <h2 style="margin-bottom: 24px; color: var(--accent);">Form Tambah Peserta Baru</h2>
@@ -137,7 +137,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     <?php endif; ?>
 
-    <form action="participant-add.php" method="POST" enctype="multipart/form-data">
+    <form action="participant-add" method="POST" enctype="multipart/form-data">
         <?= csrfField(); ?>
 
         <!-- Photo Upload field -->
@@ -286,7 +286,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
         <div style="margin-top: 40px; display: flex; gap: 12px; justify-content: flex-end;">
-            <a href="participants.php" class="btn btn-secondary">Batal</a>
+            <a href="participants" class="btn btn-secondary">Batal</a>
             <button type="submit" class="btn btn-primary">Simpan Data</button>
         </div>
     </form>

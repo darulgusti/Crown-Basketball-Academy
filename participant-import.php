@@ -436,7 +436,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="data-card">
     <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <a href="participants.php" class="btn btn-secondary btn-sm">&larr; Kembali</a>
+        <a href="participants" class="btn btn-secondary btn-sm">&larr; Kembali</a>
         <a href="participant-import.php?template=xlsx" class="btn btn-info btn-sm">
             <!-- Excel icon -->
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
@@ -491,7 +491,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php endif; ?>
 
     <!-- Import Form with Drag & Drop styling -->
-    <form action="participant-import.php" method="POST" enctype="multipart/form-data" id="import-form">
+    <form action="participant-import" method="POST" enctype="multipart/form-data" id="import-form">
         <?= csrfField(); ?>
 
         <div class="drag-drop-zone" id="drop-zone" style="border: 2px dashed var(--bg-tertiary); border-radius: var(--border-radius); padding: 40px 20px; text-align: center; background-color: var(--bg-primary); cursor: pointer; transition: all 0.3s ease; margin-bottom: 24px;">
@@ -534,7 +534,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <a href="participants.php" class="btn btn-secondary">Batal</a>
+            <a href="participants" class="btn btn-secondary">Batal</a>
             <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Mulai Impor Data</button>
         </div>
     </form>
