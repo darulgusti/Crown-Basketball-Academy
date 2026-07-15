@@ -40,6 +40,14 @@ try {
         echo "<p style='color: orange;'>⚠ Kolom <strong>avatar</strong> sudah ada, tipe data dipastikan LONGTEXT.</p>";
     }
     
+    // Migrate photo column in participants to LONGTEXT (for base64 storage)
+    $db->exec("ALTER TABLE participants MODIFY COLUMN photo LONGTEXT DEFAULT NULL");
+    echo "<p style='color: green;'>✓ Kolom <strong>photo</strong> di tabel <em>participants</em> berhasil diubah ke LONGTEXT.</p>";
+
+    // Migrate photo column in coaches to LONGTEXT (for base64 storage)
+    $db->exec("ALTER TABLE coaches MODIFY COLUMN photo LONGTEXT DEFAULT NULL");
+    echo "<p style='color: green;'>✓ Kolom <strong>photo</strong> di tabel <em>coaches</em> berhasil diubah ke LONGTEXT.</p>";
+
     echo "<p style='color: blue; font-weight: bold;'>Migrasi database selesai! Silakan hapus file ini dari server setelah Anda selesai memigrasi.</p>";
     
 } catch (Exception $e) {

@@ -53,7 +53,7 @@ $age = $today->diff($birthDate)->y;
 <div class="data-card">
     <div class="profile-detail-header" style="margin-bottom: 0;">
         <?php if ($p['photo']): ?>
-            <img src="uploads/participants/<?= e($p['photo']) ?>" alt="<?= e($p['name']) ?>" class="profile-detail-avatar">
+            <img src="<?= e(getPhotoSrc($p['photo'], 'uploads/participants/')) ?>" alt="<?= e($p['name']) ?>" class="profile-detail-avatar">
         <?php else: ?>
             <div class="profile-detail-avatar" style="display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: 700; color: var(--accent); background-color: var(--bg-primary);">
                 <?= strtoupper(substr($p['name'], 0, 1)) ?>

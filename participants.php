@@ -253,7 +253,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                         <tr>
                             <td>
                                 <?php if ($p['photo']): ?>
-                                    <img src="uploads/participants/<?= e($p['photo']) ?>" alt="<?= e($p['name']) ?>" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <img src="<?= e(getPhotoSrc($p['photo'], 'uploads/participants/')) ?>" alt="<?= e($p['name']) ?>" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                                 <?php else: ?>
                                     <div style="width: 40px; height: 40px; border-radius: 8px; background-color: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--accent); border: 1px solid rgba(255,255,255,0.05);">
                                         <?= strtoupper(substr($p['name'], 0, 1)) ?>

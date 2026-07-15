@@ -160,8 +160,11 @@ $age = $today->diff($birthDate)->y;
     <div class="profile-container">
         <!-- Photo -->
         <div class="photo-box">
-            <?php if ($p['photo'] && file_exists(__DIR__ . '/uploads/participants/' . $p['photo'])): ?>
-                <img src="uploads/participants/<?= e($p['photo']) ?>" alt="<?= e($p['name']) ?>">
+        <?php 
+            $printPhotoSrc = getPhotoSrc($p['photo'], 'uploads/participants/');
+        ?>
+        <?php if ($printPhotoSrc): ?>
+                <img src="<?= e($printPhotoSrc) ?>" alt="<?= e($p['name']) ?>">
             <?php else: ?>
                 <span style="font-size: 9pt; color: #666; text-align: center; padding: 10px;">Foto 3x4<br>Belum Diunggah</span>
             <?php endif; ?>

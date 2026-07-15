@@ -171,7 +171,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="upload-avatar-container">
             <div class="avatar-preview-box" id="avatar-box">
                 <?php if ($participant['photo']): ?>
-                    <img src="uploads/participants/<?= e($participant['photo']) ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="<?= e(getPhotoSrc($participant['photo'], 'uploads/participants/')) ?>" style="width: 100%; height: 100%; object-fit: cover;">
                 <?php else: ?>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

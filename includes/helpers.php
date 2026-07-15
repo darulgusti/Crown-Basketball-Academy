@@ -67,27 +67,28 @@ function renderFlashMessages() {
 
 /**
  * Validate and handle uploaded photo
- * 
+ * Stores the photo as a base64 data URI (compatible with read-only filesystems like Vercel).
+ *
  * @param array $file - The $_FILES item
- * @param string $targetDir - Target directory for uploads
- * @return string|false - Returns relative filepath or false on error
+ * @param string $targetDir - Ignored (kept for backward compatibility)
+ * @return string|false - Returns base64 data URI string or false on error
  */
-function handlePhotoUpload($file, $targetDir) {
+function handlePhotoUpload($file, $targetDir = '') {
     if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
         return false;
     }
-    
+
     // Allowed properties
     $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
-    $allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
-    $maxSize = 2 * 1024 * 1024; // 2MB
-    
+    $allowedExts  = ['jpg', 'jpeg', 'png', 'webp'];
+    $maxSize      = 2 * 1024 * 1024; // 2MB
+
     // 1. Verify file size
     if ($file['size'] > $maxSize) {
         setFlashMessage('danger', 'Ukuran foto maksimal 2MB.');
         return false;
     }
-    
+
     // 2. Verify extension
     $fileInfo = pathinfo($file['name']);
     $ext = strtolower($fileInfo['extension'] ?? '');
@@ -95,35 +96,43 @@ function handlePhotoUpload($file, $targetDir) {
         setFlashMessage('danger', 'Format foto harus JPG, JPEG, PNG, atau WebP.');
         return false;
     }
-    
+
     // 3. Verify MIME type using finfo
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $file['tmp_name']);
+    $mime  = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
-    
+
     if (!in_array($mime, $allowedMimes)) {
         setFlashMessage('danger', 'Tipe file tidak valid.');
         return false;
     }
-    
-    // 4. Create safe, unique filename
-    // Sanitize original name first, strip weird characters
-    $safeName = preg_replace("/[^a-zA-Z0-9_\.-]/", "", $fileInfo['filename']);
-    $fileName = time() . '_' . uniqid() . '_' . $safeName . '.' . $ext;
-    
-    // Make sure target directory exists
-    if (!is_dir($targetDir)) {
-        mkdir($targetDir, 0755, true);
+
+    // 4. Convert to base64 data URI (works on read-only filesystems like Vercel)
+    $fileData = file_get_contents($file['tmp_name']);
+    if ($fileData === false) {
+        setFlashMessage('danger', 'Gagal membaca file foto.');
+        return false;
     }
-    
-    $destPath = rtrim($targetDir, '/') . '/' . $fileName;
-    
-    if (move_uploaded_file($file['tmp_name'], $destPath)) {
-        return $fileName;
-    }
-    
-    setFlashMessage('danger', 'Gagal memproses file upload.');
-    return false;
+
+    return 'data:' . $mime . ';base64,' . base64_encode($fileData);
+}
+
+/**
+ * Resolve a stored photo value to a usable <img src="..."> string.
+ * Supports both:
+ *   - base64 data URIs  (new format: "data:image/jpeg;base64,...")
+ *   - Legacy file paths (old format: "filename.jpg") with a path prefix
+ *
+ * @param string|null $photo      - Value stored in the database
+ * @param string      $filePrefix - URL prefix for legacy file-based photos (e.g. "uploads/participants/")
+ * @return string|null            - Ready-to-use src value, or null if empty
+ */
+function getPhotoSrc($photo, $filePrefix = '') {
+    if (empty($photo)) return null;
+    // Already a data URI — return as-is
+    if (strpos($photo, 'data:') === 0) return $photo;
+    // Legacy file path — prepend the directory prefix
+    return $filePrefix . $photo;
 }
 
 /**
