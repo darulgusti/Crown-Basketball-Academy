@@ -100,7 +100,7 @@ function handlePhotoUpload($file, $targetDir = '') {
     // 3. Verify MIME type using finfo
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime  = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
+    // finfo_close() removed — deprecated since PHP 8.5, objects are freed automatically
 
     if (!in_array($mime, $allowedMimes)) {
         setFlashMessage('danger', 'Tipe file tidak valid.');
