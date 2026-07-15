@@ -313,6 +313,12 @@ require_once __DIR__ . '/includes/header.php';
         photoInput.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
+                // Validate file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    showToast('danger', 'Ukuran foto terlalu besar! Maksimal 2 MB.');
+                    this.value = '';
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     avatarBox.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;

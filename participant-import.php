@@ -511,6 +511,9 @@ require_once __DIR__ . '/includes/header.php';
                 <p style="font-size: 0.85rem; color: var(--text-secondary);">
                     atau <span style="color: var(--accent); font-weight: 600; text-decoration: underline;">pilih file dari komputer</span>
                 </p>
+                <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 6px; opacity: 0.7;">
+                    Ukuran maksimal: <strong>4 MB</strong>
+                </p>
             </div>
             
             <div id="drop-zone-selected" style="display: none;">
@@ -608,6 +611,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const ext = file.name.split('.').pop().toLowerCase();
         if (ext !== 'xlsx') {
             showToast('danger', 'Hanya file Excel (.xlsx) yang diperbolehkan.');
+            fileInput.value = '';
+            return;
+        }
+
+        // Check file size (max 4MB for Vercel serverless limit)
+        const maxSize = 4 * 1024 * 1024; // 4MB
+        if (file.size > maxSize) {
+            showToast('danger', 'Ukuran file terlalu besar! Maksimal 4 MB. Pecah data menjadi beberapa file yang lebih kecil.');
             fileInput.value = '';
             return;
         }
