@@ -11,11 +11,13 @@ $db = getDBConnection();
 $isAdmin = ($_SESSION['role'] === 'admin');
 
 // Fetch query filters
-$search = trim($_GET['search'] ?? '');
-$gender = $_GET['gender'] ?? '';
-$day = $_GET['day'] ?? '';
-$status = $_GET['status'] ?? '';
-$sort = $_GET['sort'] ?? 'newest';
+$search     = trim($_GET['search'] ?? '');
+$gender     = $_GET['gender'] ?? '';
+$day        = $_GET['day'] ?? '';
+$status     = $_GET['status'] ?? '';
+$sort       = $_GET['sort'] ?? 'newest';
+$birthMonth = (int)($_GET['birth_month'] ?? 0);
+$birthYear  = (int)($_GET['birth_year'] ?? 0);
 
 // Base SQL query
 $queryStr = "SELECT p.*, GROUP_CONCAT(td.day_name ORDER BY td.id SEPARATOR ', ') as training_days
@@ -43,6 +45,16 @@ if (!empty($day)) {
 if (!empty($status)) {
     $queryStr .= " AND p.status = ?";
     $params[] = $status;
+}
+
+if ($birthMonth > 0) {
+    $queryStr .= " AND MONTH(p.birth_date) = ?";
+    $params[] = $birthMonth;
+}
+
+if ($birthYear > 0) {
+    $queryStr .= " AND YEAR(p.birth_date) = ?";
+    $params[] = $birthYear;
 }
 
 $queryStr .= " GROUP BY p.id";
@@ -76,6 +88,16 @@ $participants = $stmt->fetchAll();
 
 // Fetch auxiliary options
 $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetchAll();
+
+// Fetch distinct birth years from participants for filter dropdown
+$birthYears = $db->query("SELECT DISTINCT YEAR(birth_date) as yr FROM participants WHERE birth_date IS NOT NULL ORDER BY yr ASC")->fetchAll(PDO::FETCH_COLUMN);
+
+// Indonesian month names
+$monthNames = [
+    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+];
 ?>
 
 <!-- Header Toolbar Actions -->
@@ -127,6 +149,8 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
         <?php if (!empty($gender)): ?><input type="hidden" name="gender" value="<?= e($gender) ?>"><?php endif; ?>
         <?php if (!empty($status)): ?><input type="hidden" name="status" value="<?= e($status) ?>"><?php endif; ?>
         <?php if ($sort !== 'newest'): ?><input type="hidden" name="sort" value="<?= e($sort) ?>"><?php endif; ?>
+        <?php if ($birthMonth > 0): ?><input type="hidden" name="birth_month" value="<?= $birthMonth ?>"><?php endif; ?>
+        <?php if ($birthYear > 0): ?><input type="hidden" name="birth_year" value="<?= $birthYear ?>"><?php endif; ?>
 
         <input type="text" name="search" class="form-control" placeholder="Cari nama peserta..." value="<?= e($search) ?>" style="width: 220px;">
         <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
@@ -135,7 +159,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             </svg>
             Cari
         </button>
-        <?php if (!empty($search) || !empty($gender) || !empty($status) || $sort !== 'newest'): ?>
+        <?php if (!empty($search) || !empty($gender) || !empty($status) || $sort !== 'newest' || $birthMonth > 0 || $birthYear > 0): ?>
             <a href="participants" class="btn btn-secondary" style="white-space: nowrap;">Reset</a>
         <?php endif; ?>
     </form>
@@ -181,14 +205,16 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                             </div>
                         </th>
 
-                        <!-- Tanggal Lahir Sort Header -->
+                        <!-- Tanggal Lahir: Sort + Filter Bulan + Filter Tahun -->
                         <th>
                             <div style="display: flex; flex-direction: column; gap: 3px;">
-                                <div style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                <div style="display: flex; align-items: center; gap: 5px; white-space: nowrap; flex-wrap: wrap;">
                                     <span>Tanggal Lahir</span>
+
+                                    <!-- Sort button -->
                                     <div class="col-filter-wrap" style="position: relative; display: inline-block;">
-                                        <button type="button" class="col-filter-btn <?= $sort !== 'newest' ? 'col-filter-btn--active' : '' ?>" onclick="toggleColFilter('filter-sort')" title="Urut Tanggal Lahir">
-                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                                        <button type="button" class="col-filter-btn <?= $sort !== 'newest' ? 'col-filter-btn--active' : '' ?>" onclick="toggleColFilter('filter-sort')" title="Urutan">
+                                            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                                         </button>
                                         <div id="filter-sort" class="col-filter-dropdown" style="display:none;">
                                             <?php
@@ -197,16 +223,66 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                                             $sortParamsOld    = array_merge($_GET, ['sort' => 'oldest']);
                                             unset($sortParamsDefault['page'], $sortParamsYoung['page'], $sortParamsOld['page']);
                                             ?>
-                                            <a href="participants.php?<?= http_build_query($sortParamsDefault) ?>" class="col-filter-option <?= $sort === 'newest' ? 'active' : '' ?>">Tidak ada</a>
+                                            <a href="participants.php?<?= http_build_query($sortParamsDefault) ?>" class="col-filter-option <?= $sort === 'newest' ? 'active' : '' ?>">Default</a>
                                             <a href="participants.php?<?= http_build_query($sortParamsYoung) ?>"  class="col-filter-option <?= $sort === 'youngest' ? 'active' : '' ?>">Termuda</a>
                                             <a href="participants.php?<?= http_build_query($sortParamsOld) ?>"   class="col-filter-option <?= $sort === 'oldest' ? 'active' : '' ?>">Tertua</a>
                                         </div>
                                     </div>
+
+                                    <!-- Filter Bulan button -->
+                                    <div class="col-filter-wrap" style="position: relative; display: inline-block;">
+                                        <button type="button" class="col-filter-btn <?= $birthMonth > 0 ? 'col-filter-btn--active' : '' ?>" onclick="toggleColFilter('filter-birth-month')" title="Filter Bulan Lahir" style="font-size: 0.65rem; padding: 1px 5px; letter-spacing: 0;">
+                                            Bln <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </button>
+                                        <div id="filter-birth-month" class="col-filter-dropdown" style="display:none;">
+                                            <?php
+                                            $bmReset = array_merge($_GET, ['birth_month' => '']); unset($bmReset['page']);
+                                            ?>
+                                            <a href="participants.php?<?= http_build_query($bmReset) ?>" class="col-filter-option <?= $birthMonth === 0 ? 'active' : '' ?>">Semua Bulan</a>
+                                            <?php foreach ($monthNames as $mNum => $mName):
+                                                $bmP = array_merge($_GET, ['birth_month' => $mNum]); unset($bmP['page']);
+                                            ?>
+                                            <a href="participants.php?<?= http_build_query($bmP) ?>" class="col-filter-option <?= $birthMonth === $mNum ? 'active' : '' ?>"><?= $mName ?></a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Filter Tahun button -->
+                                    <div class="col-filter-wrap" style="position: relative; display: inline-block;">
+                                        <button type="button" class="col-filter-btn <?= $birthYear > 0 ? 'col-filter-btn--active' : '' ?>" onclick="toggleColFilter('filter-birth-year')" title="Filter Tahun Lahir" style="font-size: 0.65rem; padding: 1px 5px; letter-spacing: 0;">
+                                            Thn <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;"><polyline points="6 9 12 15 18 9"/></svg>
+                                        </button>
+                                        <div id="filter-birth-year" class="col-filter-dropdown" style="display:none;">
+                                            <?php
+                                            $byReset = array_merge($_GET, ['birth_year' => '']); unset($byReset['page']);
+                                            ?>
+                                            <a href="participants.php?<?= http_build_query($byReset) ?>" class="col-filter-option <?= $birthYear === 0 ? 'active' : '' ?>">Semua Tahun</a>
+                                            <?php foreach ($birthYears as $yr):
+                                                $byP = array_merge($_GET, ['birth_year' => $yr]); unset($byP['page']);
+                                            ?>
+                                            <a href="participants.php?<?= http_build_query($byP) ?>" class="col-filter-option <?= $birthYear === (int)$yr ? 'active' : '' ?>"><?= $yr ?></a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <!-- Active filter badges -->
                                 <?php if ($sort !== 'newest'): ?>
                                     <?php $sortParamsReset = array_merge($_GET, ['sort' => 'newest']); unset($sortParamsReset['page']); ?>
                                     <a href="participants.php?<?= http_build_query($sortParamsReset) ?>" class="col-filter-badge">
                                         <?= $sort === 'youngest' ? 'Termuda' : 'Tertua' ?> ✕
+                                    </a>
+                                <?php endif; ?>
+                                <?php if ($birthMonth > 0): ?>
+                                    <?php $bmResetBadge = array_merge($_GET, ['birth_month' => '']); unset($bmResetBadge['page']); ?>
+                                    <a href="participants.php?<?= http_build_query($bmResetBadge) ?>" class="col-filter-badge">
+                                        <?= $monthNames[$birthMonth] ?> ✕
+                                    </a>
+                                <?php endif; ?>
+                                <?php if ($birthYear > 0): ?>
+                                    <?php $byResetBadge = array_merge($_GET, ['birth_year' => '']); unset($byResetBadge['page']); ?>
+                                    <a href="participants.php?<?= http_build_query($byResetBadge) ?>" class="col-filter-badge">
+                                        <?= $birthYear ?> ✕
                                     </a>
                                 <?php endif; ?>
                             </div>
