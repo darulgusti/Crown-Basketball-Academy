@@ -89,8 +89,6 @@ $participants = $stmt->fetchAll();
 // Fetch auxiliary options
 $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetchAll();
 
-// Fetch distinct birth years from participants for filter dropdown
-$birthYears = $db->query("SELECT DISTINCT YEAR(birth_date) as yr FROM participants WHERE birth_date IS NOT NULL ORDER BY yr ASC")->fetchAll(PDO::FETCH_COLUMN);
 
 // Indonesian month names
 $monthNames = [
@@ -167,14 +165,9 @@ $hasActiveFilter = !empty($search) || !empty($gender) || !empty($status) || $sor
         </div>
 
         <!-- Tahun Lahir -->
-        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 120px;">
+        <div style="display: flex; flex-direction: column; gap: 4px; min-width: 100px; max-width: 120px;">
             <label style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Tahun Lahir</label>
-            <select name="birth_year" class="form-control" style="height: 36px; padding: 0 10px;">
-                <option value="">Semua Tahun</option>
-                <?php foreach ($birthYears as $yr): ?>
-                    <option value="<?= $yr ?>" <?= $birthYear === (int)$yr ? 'selected' : '' ?>><?= $yr ?></option>
-                <?php endforeach; ?>
-            </select>
+            <input type="number" name="birth_year" class="form-control" placeholder="cth: 2010" value="<?= $birthYear > 0 ? $birthYear : '' ?>" min="1900" max="2099" style="height: 36px;">
         </div>
 
         <!-- Status -->
