@@ -106,13 +106,23 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Tab Actions -->
-<div class="card-actions" style="margin-bottom: 24px;">
-    <div style="display: flex; gap: 8px;">
+<div class="card-actions" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
         <a href="attendance-participants.php?date=<?= urlencode($date) ?>" class="btn btn-primary">
             Pencatatan Absensi
         </a>
         <a href="attendance-participants-history" class="btn btn-secondary">
             Riwayat & Rekap Absensi
+        </a>
+    </div>
+    <div>
+        <a href="absen" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+            <span>Buka Halaman Absen Publik</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
         </a>
     </div>
 </div>

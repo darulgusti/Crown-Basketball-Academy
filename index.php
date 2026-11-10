@@ -236,7 +236,17 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             <span>CROWN BASKETBALL ACADEMY</span>
         </div>
         
-        <div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="absen" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <path d="M9 16l2 2 4-4"/>
+                </svg>
+                <span>Absensi Peserta</span>
+            </a>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <a href="dashboard" class="btn btn-primary btn-sm">Dashboard &rarr;</a>
             <?php else: ?>
