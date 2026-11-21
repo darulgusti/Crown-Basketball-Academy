@@ -82,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $participantId = isset($_POST['participant_id']) ? (int)$_POST['participant_id'] : 0;
     $dateInput = trim($_POST['assessment_date'] ?? date('Y-m-d'));
+    $coachNameInput = trim($_POST['coach_name'] ?? '');
     $notes = trim($_POST['notes'] ?? '');
     $postCriteria = $_POST['crit'] ?? [];
     
@@ -92,6 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateInput)) {
         $errors[] = "Format tanggal observasi tidak valid.";
+    }
+
+    if (empty($coachNameInput)) {
+        $errors[] = "Nama pelatih / observer tidak boleh kosong.";
+    } elseif (strlen($coachNameInput) > 100) {
+        $errors[] = "Nama pelatih terlalu panjang (maks. 100 karakter).";
     }
 
     if ($totalCriteriaCount === 0) {
@@ -170,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $participantId,
                 $currentUserId,
                 $coachId,
-                $coachName,
+                $coachNameInput,
                 $dateInput,
                 $criteriaDataJson,
                 $legacyMap['chest_pass_prep'],
@@ -270,12 +277,12 @@ require_once __DIR__ . '/includes/header.php';
                     <input type="date" name="assessment_date" id="assessment_date" class="form-control" value="<?= e($_POST['assessment_date'] ?? $assessmentDate) ?>" required style="width: 100%;">
                 </div>
 
-                <!-- Pelatih / Penilai (Auto from session) -->
+                <!-- Pelatih / Penilai (Manual Input) -->
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
-                        Pelatih / Observer
+                    <label for="coach_name" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
+                        Pelatih / Observer <span style="color: var(--danger);">*</span>
                     </label>
-                    <input type="text" class="form-control" value="<?= e($coachName) ?>" readonly style="background-color: var(--bg-secondary); cursor: not-allowed; width: 100%;">
+                    <input type="text" name="coach_name" id="coach_name" class="form-control" value="<?= e($_POST['coach_name'] ?? '') ?>" maxlength="100" required placeholder="Masukkan nama pelatih..." style="width: 100%;">
                 </div>
             </div>
         </div>
