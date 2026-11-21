@@ -376,5 +376,47 @@ function ensureAssessmentTables($db) {
     }
 }
 
+/**
+ * Ensure training_days table has Sabtu Sesi 1/2 and Minggu Sesi 1/2,
+ * and return all training days in chronological order.
+ *
+ * @param PDO $db
+ * @return array
+ */
+function getTrainingDays($db) {
+    static $ensured = false;
+    if (!$ensured) {
+        $ensured = true;
+        try {
+            // Check if day_name column is still ENUM and alter to VARCHAR(50) if needed
+            $colInfo = $db->query("SHOW COLUMNS FROM training_days LIKE 'day_name'")->fetch();
+            if ($colInfo && stripos($colInfo['Type'], 'enum') !== false) {
+                $db->exec("ALTER TABLE training_days MODIFY COLUMN day_name VARCHAR(50) NOT NULL");
+            }
+
+            // Rename legacy 'Sabtu' and 'Minggu' to Sesi 1 (preserving existing foreign key IDs)
+            $db->exec("UPDATE training_days SET day_name = 'Sabtu Sesi 1' WHERE day_name = 'Sabtu'");
+            $db->exec("UPDATE training_days SET day_name = 'Minggu Sesi 1' WHERE day_name = 'Minggu'");
+
+            $requiredDays = [
+                'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat',
+                'Sabtu Sesi 1', 'Sabtu Sesi 2',
+                'Minggu Sesi 1', 'Minggu Sesi 2'
+            ];
+            $existing = $db->query("SELECT day_name FROM training_days")->fetchAll(PDO::FETCH_COLUMN);
+            $stmtIns = $db->prepare("INSERT INTO training_days (day_name) VALUES (?)");
+            foreach ($requiredDays as $dayName) {
+                if (!in_array($dayName, $existing, true)) {
+                    $stmtIns->execute([$dayName]);
+                }
+            }
+        } catch (Exception $e) {
+            // Ignore non-fatal migration errors
+        }
+    }
+
+    return $db->query("SELECT * FROM training_days ORDER BY FIELD(day_name, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu Sesi 1', 'Sabtu Sesi 2', 'Minggu Sesi 1', 'Minggu Sesi 2'), id ASC")->fetchAll();
+}
+
 
 

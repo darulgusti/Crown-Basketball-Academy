@@ -16,7 +16,7 @@ $db = getDBConnection();
 $errors = [];
 
 // Fetch training days
-$trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetchAll();
+$trainingDays = getTrainingDays($db);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF Check

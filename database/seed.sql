@@ -7,8 +7,10 @@ INSERT INTO training_days (day_name) VALUES
 ('Rabu'),
 ('Kamis'),
 ('Jumat'),
-('Sabtu'),
-('Minggu')
+('Sabtu Sesi 1'),
+('Sabtu Sesi 2'),
+('Minggu Sesi 1'),
+('Minggu Sesi 2')
 ON DUPLICATE KEY UPDATE day_name=VALUES(day_name);
 
 -- Create Initial Admin User (password is 'deandra')

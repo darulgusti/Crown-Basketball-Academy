@@ -87,7 +87,7 @@ $stmt->execute($params);
 $participants = $stmt->fetchAll();
 
 // Fetch auxiliary options
-$trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetchAll();
+$trainingDays = getTrainingDays($db);
 
 
 // Indonesian month names

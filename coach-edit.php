@@ -32,7 +32,7 @@ if (!$coach) {
 }
 
 // Fetch training days
-$trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetchAll();
+$trainingDays = getTrainingDays($db);
 
 // Fetch already selected training day IDs for coach
 $stmtDaysSelected = $db->prepare("SELECT training_day_id FROM coach_training_days WHERE coach_id = ?");

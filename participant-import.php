@@ -146,8 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Format file tidak didukung. Harap unggah file dengan ekstensi .xlsx.";
         } else {
             // Fetch day mapping from DB
-            $stmtDays = $db->query("SELECT * FROM training_days");
-            $dbDays = $stmtDays->fetchAll();
+            $dbDays = getTrainingDays($db);
             $dayNameToId = [];
             foreach ($dbDays as $d) {
                 $dayNameToId[strtolower($d['day_name'])] = $d['id'];
@@ -295,13 +294,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // 10. Parse training days
                         $rowDayIds = [];
                         if (!empty($training_days_str)) {
-                            // Split by comma, ampersand, slash or semicolon
-                            $dayNames = preg_split('/[\s,;&\/]+/', $training_days_str);
+                            // Split by comma, ampersand, slash or semicolon (keep spaces for "Sabtu Sesi 1")
+                            $dayNames = preg_split('/[,;&\/]+/', $training_days_str);
                             $dayNames = array_filter(array_map('trim', $dayNames));
                             
                             foreach ($dayNames as $dName) {
                                 $dNameLower = strtolower($dName);
                                 if ($dNameLower === "jum'at") $dNameLower = 'jumat';
+                                if ($dNameLower === 'sabtu') $dNameLower = 'sabtu sesi 1';
+                                if ($dNameLower === 'minggu') $dNameLower = 'minggu sesi 1';
                                 
                                 if (isset($dayNameToId[$dNameLower])) {
                                     $rowDayIds[] = $dayNameToId[$dNameLower];

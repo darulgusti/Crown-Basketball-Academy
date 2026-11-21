@@ -29,7 +29,7 @@ if (!$participant) {
 }
 
 // Fetch training days
-$trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetchAll();
+$trainingDays = getTrainingDays($db);
 
 // Fetch already selected training day IDs for participant
 $stmtDaysSelected = $db->prepare("SELECT training_day_id FROM participant_training_days WHERE participant_id = ?");

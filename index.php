@@ -78,7 +78,7 @@ $stmt->execute($params);
 $participants = $stmt->fetchAll();
 
 // Fetch training days for filter dropdown
-$trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetchAll();
+$trainingDays = getTrainingDays($db);
 ?>
 <!DOCTYPE html>
 <html lang="id">
