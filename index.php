@@ -223,6 +223,128 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             display: flex;
             justify-content: flex-end;
         }
+
+        /* Mobile Responsive Optimizations */
+        @media (max-width: 768px) {
+            .public-navbar {
+                height: 60px;
+                padding: 0 16px;
+            }
+            .navbar-brand {
+                font-size: 0.85rem;
+                gap: 8px;
+            }
+            .navbar-brand svg {
+                width: 22px;
+                height: 22px;
+                min-width: 22px;
+            }
+            .public-container {
+                padding: 24px 14px;
+            }
+            .landing-hero {
+                padding: 28px 16px;
+                margin-bottom: 20px;
+            }
+            .landing-hero h1 {
+                font-size: 1.4rem;
+                margin-bottom: 8px;
+            }
+            .landing-hero p {
+                font-size: 0.85rem;
+            }
+            .search-filter-box {
+                flex-direction: column;
+                width: 100%;
+                gap: 6px;
+            }
+            .search-filter-box .form-control {
+                width: 100% !important;
+                max-width: none !important;
+                font-size: 0.85rem !important;
+                padding: 8px 12px !important;
+                height: 38px !important;
+                min-height: 38px !important;
+                border-radius: 8px !important;
+            }
+            .card-actions > div > .btn {
+                font-size: 0.82rem !important;
+                padding: 8px 12px !important;
+                height: 38px !important;
+                min-height: 38px !important;
+                border-radius: 8px !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .public-navbar {
+                height: 56px;
+                padding: 0 10px;
+            }
+            .navbar-brand {
+                font-size: 0.72rem;
+                gap: 6px;
+                max-width: 135px;
+            }
+            .navbar-brand span {
+                line-height: 1.15;
+                font-weight: 700;
+                letter-spacing: -0.2px;
+            }
+            .navbar-brand svg {
+                width: 18px;
+                height: 18px;
+                min-width: 18px;
+            }
+            .public-nav-actions {
+                gap: 6px !important;
+            }
+            .nav-btn-absen {
+                font-size: 0.72rem !important;
+                padding: 5px 8px !important;
+                gap: 4px !important;
+                white-space: nowrap !important;
+            }
+            .nav-btn-absen svg {
+                width: 12px !important;
+                height: 12px !important;
+            }
+            .nav-btn-login {
+                font-size: 0.72rem !important;
+                padding: 5px 12px !important;
+                white-space: nowrap !important;
+            }
+            .landing-hero {
+                padding: 20px 12px;
+                margin-bottom: 16px;
+            }
+            .landing-hero h1 {
+                font-size: 1.25rem;
+                margin-bottom: 6px;
+            }
+            .landing-hero p {
+                font-size: 0.8rem;
+                line-height: 1.4;
+            }
+            .data-card {
+                padding: 14px 12px !important;
+            }
+            .search-filter-box .form-control {
+                font-size: 0.8rem !important;
+                padding: 7px 10px !important;
+                height: 36px !important;
+                min-height: 36px !important;
+            }
+            .card-actions > div > .btn {
+                font-size: 0.8rem !important;
+                padding: 7px 10px !important;
+                height: 36px !important;
+                min-height: 36px !important;
+            }
+            .public-container {
+                padding: 16px 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -236,21 +358,11 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
             <span>CROWN BASKETBALL ACADEMY</span>
         </div>
         
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <a href="absen" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                    <path d="M9 16l2 2 4-4"/>
-                </svg>
-                <span>Absensi Peserta</span>
-            </a>
+        <div>
             <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="dashboard" class="btn btn-primary btn-sm">Dashboard &rarr;</a>
+                <a href="dashboard" class="btn btn-primary btn-sm nav-btn-login">Dashboard &rarr;</a>
             <?php else: ?>
-                <a href="login" class="btn btn-primary btn-sm">Login / Register</a>
+                <a href="login" class="btn btn-primary btn-sm nav-btn-login">Login</a>
             <?php endif; ?>
         </div>
     </nav>
@@ -315,7 +427,7 @@ $trainingDays = $db->query("SELECT * FROM training_days ORDER BY id ASC")->fetch
                             </span>
                             <div class="card-avatar-wrapper">
                                 <?php if ($p['photo']): ?>
-                                    <img src="uploads/participants/<?= e($p['photo']) ?>" alt="<?= e($p['name']) ?>">
+                                    <img src="<?= e(getPhotoSrc($p['photo'], 'uploads/participants/')) ?>" alt="<?= e($p['name']) ?>">
                                 <?php else: ?>
                                     <div class="card-avatar-placeholder">
                                         <?= strtoupper(substr($p['name'], 0, 1)) ?>

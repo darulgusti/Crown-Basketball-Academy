@@ -106,4 +106,52 @@ CREATE TABLE IF NOT EXISTS coach_attendances (
     INDEX idx_coach_attendances_date (date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS participant_assessments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    participant_id INT NOT NULL,
+    user_id INT NOT NULL,
+    coach_id INT DEFAULT NULL,
+    coach_name VARCHAR(100) NOT NULL,
+    assessment_date DATE NOT NULL,
+    criteria_data LONGTEXT NULL DEFAULT NULL,
+    chest_pass_prep ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+    chest_pass_acc ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+    dribble_control ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+    dribble_vision ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+    shooting_elbow ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+    shooting_wrist ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+    score_e INT NOT NULL DEFAULT 6,
+    score_ie INT NOT NULL DEFAULT 0,
+    final_score DECIMAL(5,2) NOT NULL DEFAULT 100.00,
+    predicate VARCHAR(50) NOT NULL DEFAULT 'Sangat Baik',
+    notes TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coach_id) REFERENCES coaches(id) ON DELETE SET NULL,
+    INDEX idx_assessment_participant (participant_id),
+    INDEX idx_assessment_date (assessment_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS assessment_groups (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS assessment_criteria (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    group_id INT NULL,
+    slot_key VARCHAR(50) NULL,
+    category_name VARCHAR(100) NOT NULL,
+    criterion_label TEXT NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_criteria_group (group_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -89,7 +89,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'export') {
             $r['name'],
             $r['status'],
             $r['notes'] ?: '-',
-            $r['recorder_name'] ?: 'Publik (Tanpa Login)'
+            $r['recorder_name'] ?: '-'
         ]);
     }
     
@@ -234,9 +234,7 @@ $monthsList = [
                                 <?= $h['notes'] ? e($h['notes']) : '-' ?>
                             </td>
                             <td>
-                                <span style="font-size: 0.85rem; font-weight: 500; color: <?= $h['recorder_name'] ? 'var(--info)' : 'var(--text-secondary)' ?>;">
-                                    <?= e($h['recorder_name'] ?: 'Publik (Tanpa Login)') ?>
-                                </span>
+                                <span style="font-size: 0.85rem; font-weight: 500; color: var(--info);"><?= e($h['recorder_name'] ?: '-') ?></span>
                             </td>
                         </tr>
                     <?php endforeach; ?>

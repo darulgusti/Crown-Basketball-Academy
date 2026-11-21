@@ -1131,13 +1131,14 @@ select.form-control {
     }
     .landing-hero {
         padding: 30px 16px !important; /* More compact hero banner spacing on mobile */
-        margin-bottom: 24px !important;
+        margin-bottom: 20px !important;
     }
     .landing-hero h1 {
-        font-size: 1.6rem !important;
+        font-size: 1.4rem !important;
+        margin-bottom: 10px !important;
     }
     .landing-hero p {
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important;
     }
     
     .form-control {
@@ -1173,12 +1174,17 @@ select.form-control {
     .search-filter-box {
         flex-direction: column !important;
         width: 100% !important;
-        gap: 8px !important;
+        gap: 6px !important;
     }
     
     .search-filter-box .form-control {
         width: 100% !important;
         max-width: none !important; /* Overrides inline max-width styles */
+        font-size: 0.85rem !important;
+        padding: 8px 12px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        border-radius: 8px !important;
     }
     
     /* Flex grid for button toolbars and filter actions */
@@ -1186,16 +1192,19 @@ select.form-control {
         width: 100% !important;
         display: flex !important;
         flex-wrap: wrap !important;
-        gap: 8px !important;
+        gap: 6px !important;
     }
     
     .card-actions > div > .btn {
-        flex: 1 1 calc(50% - 8px) !important;
+        flex: 1 1 calc(50% - 6px) !important;
         justify-content: center !important;
         align-items: center !important;
-        font-size: 0.85rem !important;
-        padding: 10px 16px !important;
+        font-size: 0.82rem !important;
+        padding: 8px 12px !important;
+        height: 38px !important;
+        min-height: 38px !important;
         text-align: center;
+        border-radius: 8px !important;
     }
     
     .charts-grid {
@@ -1333,11 +1342,80 @@ select.form-control {
     
     /* Navbar brand and public container improvements */
     .public-navbar {
-        padding: 0 16px !important;
+        height: 58px !important;
+        padding: 0 12px !important;
     }
     
+    .public-navbar .navbar-brand {
+        font-size: 0.75rem !important;
+        gap: 6px !important;
+        max-width: 140px;
+    }
+
+    .public-navbar .navbar-brand span {
+        line-height: 1.15;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+    }
+
+    .public-navbar .navbar-brand svg {
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+    }
+
+    .public-nav-actions {
+        gap: 6px !important;
+    }
+
+    .public-navbar .btn,
+    .nav-btn-absen,
+    .nav-btn-login {
+        font-size: 0.72rem !important;
+        padding: 5px 9px !important;
+        white-space: nowrap !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+    }
+
+    .public-navbar .btn svg,
+    .nav-btn-absen svg {
+        width: 12px !important;
+        height: 12px !important;
+    }
+
+    .landing-hero {
+        padding: 24px 14px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .landing-hero h1 {
+        font-size: 1.3rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    .landing-hero p {
+        font-size: 0.8rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    .search-filter-box .form-control {
+        font-size: 0.8rem !important;
+        padding: 7px 10px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+    }
+
+    .card-actions > div > .btn,
+    .search-filter-form .card-actions > div > .btn {
+        font-size: 0.8rem !important;
+        padding: 7px 10px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+    }
+
     .public-container {
-        padding: 20px 12px !important;
+        padding: 16px 12px !important;
     }
 }
 

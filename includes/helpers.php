@@ -234,3 +234,24 @@ function renderPaginationLinks($page, $totalPages, $getParams) {
     return $html;
 }
 
+/**
+ * Render assessment predicate badge
+ * 
+ * @param string $predicate
+ * @return string
+ */
+function renderPredicateBadge($predicate) {
+    $class = 'badge-secondary';
+    if ($predicate === 'Sangat Baik') {
+        $class = 'badge-success';
+    } elseif ($predicate === 'Baik') {
+        $class = 'badge-info';
+    } elseif ($predicate === 'Cukup') {
+        $class = 'badge-warning';
+    } else {
+        $class = 'badge-danger';
+    }
+    return '<span class="badge ' . $class . '">' . e($predicate) . '</span>';
+}
+
+

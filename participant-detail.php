@@ -31,18 +31,31 @@ if (!$p) {
 $birthDate = new DateTime($p['birth_date']);
 $today = new DateTime();
 $age = $today->diff($birthDate)->y;
+
+// Fetch participant assessments
+$stmtAssess = $db->prepare("SELECT * FROM participant_assessments WHERE participant_id = ? ORDER BY assessment_date DESC, id DESC");
+$stmtAssess->execute([$id]);
+$participantAssessments = $stmtAssess->fetchAll();
 ?>
 
-<div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+<div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
     <a href="participants" class="btn btn-secondary btn-sm">&larr; Kembali ke Daftar</a>
     
-    <div style="display: flex; gap: 8px;">
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href="assessment-add.php?participant_id=<?= $p['id'] ?>" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                <path d="M9 14l2 2 4-4"/>
+            </svg>
+            <span>+ Nilai Atlet Ini</span>
+        </a>
 
         <a href="participant-edit.php?id=<?= $p['id'] ?>" class="btn btn-primary" style="background-color: var(--info); box-shadow: none;">
             Edit Data
         </a>
         <?php if ($isAdmin): ?>
-            <button type="button" class="btn btn-danger" onclick="confirmAction('Hapus Peserta', 'Apakah Anda yakin ingin menghapus peserta bernama <?= e(addslashes($p['name'])) ?>? Tindakan ini tidak dapat dibatalkan.', 'participant-delete.php?id=<?= $p['id'] ?>')">
+            <button type="button" class="btn btn-danger" onclick="confirmAction('Hapus Peserta', 'Apakah Anda yakin ingin menghapus peserta bernama <?= e(addslashes($p['name'])) ?>? Tindakan ini tidak dapat dibatalkan.', 'participant-delete.php?id=<?= $p['id'] ?>&csrf_token=<?= generateCSRFToken() ?>')">
                 Hapus
             </button>
         <?php endif; ?>
@@ -154,6 +167,90 @@ $age = $today->diff($birthDate)->y;
         
     </div>
 
+</div>
+
+<!-- Riwayat Penilaian Atlet (GPAI) -->
+<div class="data-card" style="margin-top: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin: 0 0 4px;">
+                Riwayat Penilaian Kemampuan (GPAI)
+            </h3>
+            <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                Catatan evaluasi skill execution (Chest Pass, Dribbling, Shooting)
+            </div>
+        </div>
+        <a href="assessment-add.php?participant_id=<?= $p['id'] ?>" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>+ Buat Penilaian Baru</span>
+        </a>
+    </div>
+
+    <?php if (!empty($participantAssessments)): ?>
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Tanggal Observasi</th>
+                        <th>Coach Penilai</th>
+                        <th style="text-align: center;">Skor (E)</th>
+                        <th style="text-align: center;">Nilai</th>
+                        <th>Predikat</th>
+                        <th>Catatan Evaluasi</th>
+                        <th style="text-align: right; width: 140px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($participantAssessments as $pa): ?>
+                        <tr>
+                            <td><strong><?= formatIndoDate($pa['assessment_date']) ?></strong></td>
+                            <td><?= e($pa['coach_name']) ?></td>
+                            <td style="text-align: center;">
+                                <strong style="color: var(--accent);"><?= $pa['score_e'] ?></strong>
+                                <span style="font-size: 0.8rem; color: var(--text-secondary);"> / <?= ($pa['score_e'] + $pa['score_ie']) ?: 6 ?></span>
+                            </td>
+                            <td style="text-align: center;">
+                                <strong><?= number_format($pa['final_score'], 0) ?>%</strong>
+                            </td>
+                            <td><?= renderPredicateBadge($pa['predicate']) ?></td>
+                            <td style="max-width: 240px; font-size: 0.85rem; color: var(--text-secondary); white-space: normal;">
+                                <?= $pa['notes'] ? e($pa['notes']) : '-' ?>
+                            </td>
+                            <td style="text-align: right;">
+                                <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
+                                    <a href="assessment-detail.php?id=<?= $pa['id'] ?>" class="btn btn-secondary btn-sm" title="Lihat Lembar Observasi" style="padding: 5px 8px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </a>
+                                    <a href="assessment-print.php?id=<?= $pa['id'] ?>" target="_blank" class="btn btn-secondary btn-sm" title="Cetak Lembar Observasi" style="padding: 5px 8px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                                            <polyline points="6 9 6 2 18 2 18 9"/>
+                                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                                            <rect x="6" y="14" width="12" height="8"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php else: ?>
+        <div style="text-align: center; padding: 28px 16px; background-color: var(--bg-primary); border-radius: 8px; border: 1px solid var(--bg-tertiary);">
+            <p style="color: var(--text-secondary); margin: 0 0 12px; font-size: 0.9rem;">
+                Atlet ini belum memiliki riwayat lembar observasi GPAI.
+            </p>
+            <a href="assessment-add.php?participant_id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm">
+                + Input Penilaian Pertama
+            </a>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php
