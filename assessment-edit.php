@@ -12,6 +12,7 @@ require_once __DIR__ . '/includes/csrf.php';
 requireAuth();
 
 $db = getDBConnection();
+ensureAssessmentTables($db);
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $isAdmin = ($_SESSION['role'] === 'admin');
 $currentUserId = $_SESSION['user_id'];

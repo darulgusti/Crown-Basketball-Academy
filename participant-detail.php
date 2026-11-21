@@ -8,6 +8,7 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/header.php'; // requires auth
 
 $db = getDBConnection();
+ensureAssessmentTables($db);
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $isAdmin = ($_SESSION['role'] === 'admin');
 

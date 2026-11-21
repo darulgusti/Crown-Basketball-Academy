@@ -12,6 +12,7 @@ require_once __DIR__ . '/includes/csrf.php';
 requireAuth();
 
 $db = getDBConnection();
+ensureAssessmentTables($db);
 $errors = [];
 
 // Resolve Coach Name from active session

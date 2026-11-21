@@ -11,6 +11,7 @@ require_once __DIR__ . '/includes/helpers.php';
 requireAuth();
 
 $db = getDBConnection();
+ensureAssessmentTables($db);
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 $stmt = $db->prepare("SELECT pa.*, 

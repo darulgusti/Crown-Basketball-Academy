@@ -254,4 +254,127 @@ function renderPredicateBadge($predicate) {
     return '<span class="badge ' . $class . '">' . e($predicate) . '</span>';
 }
 
+/**
+ * Ensure assessment-related database tables and columns exist (safe auto-migration).
+ *
+ * @param PDO $db
+ */
+function ensureAssessmentTables($db) {
+    static $checked = false;
+    if ($checked) return;
+    $checked = true;
+
+    try {
+        $tAssess = $db->query("SHOW TABLES LIKE 'participant_assessments'")->rowCount() > 0;
+        $tGroups = $db->query("SHOW TABLES LIKE 'assessment_groups'")->rowCount() > 0;
+        $tCrit   = $db->query("SHOW TABLES LIKE 'assessment_criteria'")->rowCount() > 0;
+
+        if (!$tAssess) {
+            $db->exec("CREATE TABLE IF NOT EXISTS participant_assessments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                participant_id INT NOT NULL,
+                user_id INT NOT NULL,
+                coach_id INT DEFAULT NULL,
+                coach_name VARCHAR(100) NOT NULL,
+                assessment_date DATE NOT NULL,
+                criteria_data LONGTEXT NULL DEFAULT NULL,
+                chest_pass_prep ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+                chest_pass_acc ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+                dribble_control ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+                dribble_vision ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+                shooting_elbow ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+                shooting_wrist ENUM('E', 'IE') NOT NULL DEFAULT 'E',
+                score_e INT NOT NULL DEFAULT 6,
+                score_ie INT NOT NULL DEFAULT 0,
+                final_score DECIMAL(5,2) NOT NULL DEFAULT 100.00,
+                predicate VARCHAR(50) NOT NULL DEFAULT 'Sangat Baik',
+                notes TEXT DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (coach_id) REFERENCES coaches(id) ON DELETE SET NULL,
+                INDEX idx_assessment_participant (participant_id),
+                INDEX idx_assessment_date (assessment_date)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } else {
+            if ($db->query("SHOW COLUMNS FROM participant_assessments LIKE 'criteria_data'")->rowCount() === 0) {
+                $db->exec("ALTER TABLE participant_assessments ADD COLUMN criteria_data LONGTEXT NULL DEFAULT NULL AFTER assessment_date");
+            }
+        }
+
+        if (!$tGroups) {
+            $db->exec("CREATE TABLE IF NOT EXISTS assessment_groups (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                sort_order INT NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        }
+
+        if (!$tCrit) {
+            $db->exec("CREATE TABLE IF NOT EXISTS assessment_criteria (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                group_id INT NULL,
+                slot_key VARCHAR(50) NULL,
+                category_name VARCHAR(100) NOT NULL,
+                criterion_label TEXT NOT NULL,
+                sort_order INT NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } else {
+            if ($db->query("SHOW COLUMNS FROM assessment_criteria LIKE 'group_id'")->rowCount() === 0) {
+                $db->exec("ALTER TABLE assessment_criteria ADD COLUMN group_id INT NULL AFTER id");
+            }
+        }
+
+        // Seed default groups & criteria if assessment_groups is empty
+        if ((int)$db->query("SELECT COUNT(*) FROM assessment_groups")->fetchColumn() === 0) {
+            $critCount = (int)$db->query("SELECT COUNT(*) FROM assessment_criteria")->fetchColumn();
+            if ($critCount > 0) {
+                $catNames = $db->query("SELECT category_name, MIN(sort_order) as min_sort FROM assessment_criteria GROUP BY category_name ORDER BY min_sort ASC")->fetchAll();
+                $insG = $db->prepare("INSERT INTO assessment_groups (name, sort_order) VALUES (?, ?)");
+                $updC = $db->prepare("UPDATE assessment_criteria SET group_id = ? WHERE category_name = ?");
+                $gSort = 1;
+                foreach ($catNames as $cn) {
+                    $insG->execute([$cn['category_name'], $gSort++]);
+                    $newGid = $db->lastInsertId();
+                    $updC->execute([$newGid, $cn['category_name']]);
+                }
+            } else {
+                $defaults = [
+                    'Chest Pass (Umpan Dada)' => [
+                        ['chest_pass_prep', 'Awalan bola di depan dada, kaki dibuka lebar, badan condong'],
+                        ['chest_pass_acc',  'Akurasi lemparan ke arah kawan'],
+                    ],
+                    'Dribbling' => [
+                        ['dribble_control', 'Bola dipantulkan setinggi pinggang dengan ujung jari'],
+                        ['dribble_vision',  'Pandangan ke depan, tidak terpaku pada bola'],
+                    ],
+                    'Shooting' => [
+                        ['shooting_elbow',  'Siku lurus di bawah bola saat menembak'],
+                        ['shooting_wrist',  'Lepasan bola diikuti gerakan pergelangan tangan'],
+                    ],
+                ];
+                $insG = $db->prepare("INSERT INTO assessment_groups (name, sort_order) VALUES (?, ?)");
+                $insC = $db->prepare("INSERT INTO assessment_criteria (group_id, slot_key, category_name, criterion_label, sort_order) VALUES (?, ?, ?, ?, ?)");
+                $gOrder = 1;
+                $cOrder = 1;
+                foreach ($defaults as $gName => $crits) {
+                    $insG->execute([$gName, $gOrder++]);
+                    $gid = $db->lastInsertId();
+                    foreach ($crits as $c) {
+                        $insC->execute([$gid, $c[0], $gName, $c[1], $cOrder++]);
+                    }
+                }
+            }
+        }
+    } catch (Exception $e) {
+        // Ignore non-fatal migration errors
+    }
+}
+
+
 
