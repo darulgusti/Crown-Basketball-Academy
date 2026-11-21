@@ -8,6 +8,8 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/header.php'; // already performs auth checks
 
 $db = getDBConnection();
+getTrainingDays($db);
+ensureAssessmentTables($db);
 $role = $_SESSION['role'];
 $todayDate = date('Y-m-d');
 $todayDayIndex = date('N'); // 1 (Monday) to 7 (Sunday)
@@ -40,11 +42,13 @@ if ($role === 'admin') {
     }
     
 
-    // 5. Participants by Training Day
-    $dayStats = $db->query("SELECT td.day_name, COUNT(ptd.participant_id) as count 
+    // 5. Participants by Training Day (chronological order, active participants)
+    $dayStats = $db->query("SELECT td.day_name, COUNT(p.id) as count 
                             FROM training_days td 
                             LEFT JOIN participant_training_days ptd ON td.id = ptd.training_day_id 
-                            GROUP BY td.id, td.day_name")->fetchAll();
+                            LEFT JOIN participants p ON ptd.participant_id = p.id AND p.status = 'active'
+                            GROUP BY td.id, td.day_name
+                            ORDER BY FIELD(td.day_name, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu Sesi 1', 'Sabtu Sesi 2', 'Minggu Sesi 1', 'Minggu Sesi 2'), td.id ASC")->fetchAll();
                             
     // 6. Today Participant Attendance Summary
     $pAttendanceStats = $db->query("SELECT status, COUNT(*) as count 
@@ -55,6 +59,12 @@ if ($role === 'admin') {
     foreach ($pAttendanceStats as $pas) {
         $pAttendancesToday[$pas['status']] = $pas['count'];
     }
+
+    // 7. GPAI Assessment Summary
+    $assessSummary = $db->query("SELECT COUNT(*) as total_assessments,
+                                        COUNT(DISTINCT participant_id) as assessed_athletes,
+                                        COALESCE(AVG(final_score), 0) as avg_score
+                                 FROM participant_assessments")->fetch();
     
 
     
@@ -71,7 +81,7 @@ if ($role === 'admin') {
     $stmtSched = $db->prepare("SELECT COUNT(*) 
                                FROM coach_training_days ctd 
                                JOIN training_days td ON ctd.training_day_id = td.id 
-                               WHERE ctd.coach_id = ? AND td.day_name = ?");
+                               WHERE ctd.coach_id = ? AND td.day_name LIKE CONCAT(?, '%')");
     $stmtSched->execute([$coachId, $todayDayName]);
     $isScheduledToday = $stmtSched->fetchColumn() > 0;
     
@@ -80,7 +90,7 @@ if ($role === 'admin') {
                                   FROM coach_training_days ctd 
                                   JOIN training_days td ON ctd.training_day_id = td.id 
                                   WHERE ctd.coach_id = ? 
-                                  ORDER BY td.id");
+                                  ORDER BY FIELD(td.day_name, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu Sesi 1', 'Sabtu Sesi 2', 'Minggu Sesi 1', 'Minggu Sesi 2'), td.id ASC");
     $stmtAllSched->execute([$coachId]);
     $coachSchedules = $stmtAllSched->fetchAll(PDO::FETCH_COLUMN);
     
@@ -90,7 +100,7 @@ if ($role === 'admin') {
                                  JOIN participant_training_days ptd ON p.id = ptd.participant_id
                                  JOIN training_days td ON ptd.training_day_id = td.id
                                  LEFT JOIN participant_attendances pa ON p.id = pa.participant_id AND pa.date = ?
-                                 WHERE td.day_name = ? AND p.status = 'active'
+                                 WHERE td.day_name LIKE CONCAT(?, '%') AND p.status = 'active'
                                  ORDER BY p.name ASC");
     $stmtPToday->execute([$todayDate, $todayDayName]);
     $participantsToday = $stmtPToday->fetchAll();
@@ -172,41 +182,78 @@ if ($role === 'admin') {
     </div>
 
     <!-- Charts & Tables Grid -->
-    <div class="charts-grid">
+    <div class="charts-grid" style="align-items: stretch;">
         
-        <!-- Attendance Today Panel -->
-        <div class="chart-card">
-            <div class="chart-header">
-                <span class="chart-title">Absensi Hari Ini (<?= formatIndoDate($todayDate) ?>)</span>
-                <span class="badge badge-active"><?= $todayDayName ?></span>
-            </div>
-            
-            <h4 style="font-size: 0.9rem; margin-bottom: 12px; color: var(--accent);">Peserta Latihan</h4>
-            <div class="stats-list" style="margin-bottom: 24px;">
-                <?php 
-                $pTotalToday = array_sum($pAttendancesToday);
-                foreach ($pAttendancesToday as $status => $count): 
-                    $percent = $pTotalToday > 0 ? ($count / $pTotalToday) * 100 : 0;
-                ?>
-                    <div class="stats-item">
-                        <div class="stats-label">
-                            <span class="badge badge-<?= strtolower(str_replace(' ', '-', $status)) ?>" style="width: 140px; justify-content: center;"><?= $status ?></span>
-                        </div>
-                        <div class="stats-bar-wrapper">
-                            <div class="stats-bar" style="width: <?= $percent ?>%; <?= $status === 'Tanpa Keterangan' ? 'background: var(--danger)' : '' ?>"></div>
-                        </div>
-                        <span class="stats-count"><?= $count ?></span>
+        <!-- Left Column: Attendance Today + GPAI Summary -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Attendance Today Panel -->
+            <div class="chart-card" style="margin-bottom: 0;">
+                <div class="chart-header">
+                    <div>
+                        <span class="chart-title">Absensi Hari Ini</span>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;"><?= formatIndoDate($todayDate) ?></div>
                     </div>
-                <?php endforeach; ?>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="badge badge-active"><?= $todayDayName ?></span>
+                        <a href="attendance-participants" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">Buka &rarr;</a>
+                    </div>
+                </div>
+                
+                <div class="stats-list">
+                    <?php 
+                    $pTotalToday = array_sum($pAttendancesToday);
+                    foreach ($pAttendancesToday as $status => $count): 
+                        $percent = $pTotalToday > 0 ? ($count / $pTotalToday) * 100 : 0;
+                    ?>
+                        <div class="stats-item">
+                            <div class="stats-label" style="flex-shrink: 0;">
+                                <span class="badge badge-<?= strtolower(str_replace(' ', '-', $status)) ?>" style="min-width: 148px; white-space: nowrap; justify-content: center; padding: 5px 10px;"><?= $status ?></span>
+                            </div>
+                            <div class="stats-bar-wrapper">
+                                <div class="stats-bar" style="width: <?= $percent ?>%; <?= $status === 'Tanpa Keterangan' ? 'background: var(--danger)' : '' ?>"></div>
+                            </div>
+                            <span class="stats-count"><?= $count ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
+            <!-- GPAI Assessment Summary Panel -->
+            <div class="chart-card" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
+                <div>
+                    <div class="chart-header">
+                        <span class="chart-title">Ringkasan Penilaian (GPAI)</span>
+                        <a href="assessments" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">Lihat Semua &rarr;</a>
+                    </div>
 
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+                        <div style="background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 10px; padding: 14px 10px; text-align: center;">
+                            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">Total Lembar</div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;"><?= number_format((int)$assessSummary['total_assessments']) ?></div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 10px; padding: 14px 10px; text-align: center;">
+                            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">Atlet Dinilai</div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent); margin-top: 4px;"><?= number_format((int)$assessSummary['assessed_athletes']) ?></div>
+                        </div>
+                        <div style="background: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 10px; padding: 14px 10px; text-align: center;">
+                            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">Rata-rata Skor</div>
+                            <div style="font-size: 1.35rem; font-weight: 800; color: var(--success); margin-top: 4px;"><?= number_format((float)$assessSummary['avg_score'], 0) ?>%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="assessment-add" class="btn btn-primary btn-sm" style="flex: 1; text-align: center; justify-content: center;">+ Input Penilaian Baru</a>
+                    <a href="assessment-settings" class="btn btn-secondary btn-sm" style="flex: 1; text-align: center; justify-content: center;">Atur Kriteria</a>
+                </div>
+            </div>
         </div>
 
-        <!-- Participants Schedules stats -->
-        <div class="chart-card">
+        <!-- Right Column: Participants Schedules stats -->
+        <div class="chart-card" style="margin-bottom: 0;">
             <div class="chart-header">
                 <span class="chart-title">Peserta Berdasarkan Hari Latihan</span>
+                <a href="participants" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">Data Peserta &rarr;</a>
             </div>
             <div class="stats-list">
                 <?php 
@@ -215,7 +262,7 @@ if ($role === 'admin') {
                     $percent = $maxDayCount > 0 ? ($ds['count'] / $maxDayCount) * 100 : 0;
                 ?>
                     <div class="stats-item">
-                        <div class="stats-label" style="width: 80px; font-weight: 500;"><?= e($ds['day_name']) ?></div>
+                        <div class="stats-label" style="min-width: 118px; width: 118px; white-space: nowrap; font-weight: 600; font-size: 0.88rem; color: var(--text-primary);"><?= e($ds['day_name']) ?></div>
                         <div class="stats-bar-wrapper">
                             <div class="stats-bar" style="width: <?= $percent ?>%;"></div>
                         </div>
