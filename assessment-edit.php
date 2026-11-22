@@ -40,7 +40,7 @@ if (!$isAdmin && $a['user_id'] != $currentUserId) {
 }
 
 // Fetch active participants
-$stmtP = $db->query("SELECT id, name, gender FROM participants ORDER BY name ASC");
+$stmtP = $db->query("SELECT id, name, gender, birth_date FROM participants ORDER BY name ASC");
 $participants = $stmtP->fetchAll();
 
 // Resolve Criteria Snapshot
@@ -122,23 +122,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
     
     $participantId = isset($_POST['participant_id']) ? (int)$_POST['participant_id'] : $a['participant_id'];
-    $dateInput = trim($_POST['assessment_date'] ?? $a['assessment_date']);
-    $coachNameInput = trim($_POST['coach_name'] ?? '');
+    $armSpan = trim($_POST['arm_span'] ?? '');
+    $fingerSpan = trim($_POST['finger_span'] ?? '');
+    $verticalJump = trim($_POST['vertical_jump'] ?? '');
     $notes = trim($_POST['notes'] ?? '');
     $postCriteria = $_POST['crit'] ?? [];
     
     if ($participantId <= 0) {
         $errors[] = "Silakan pilih peserta didik / atlet yang dinilai.";
     }
-    
-    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateInput)) {
-        $errors[] = "Format tanggal observasi tidak valid.";
-    }
 
-    if (empty($coachNameInput)) {
-        $errors[] = "Nama pelatih / observer tidak boleh kosong.";
-    } elseif (strlen($coachNameInput) > 100) {
-        $errors[] = "Nama pelatih terlalu panjang (maks. 100 karakter).";
+    if (strlen($armSpan) > 50 || strlen($fingerSpan) > 50 || strlen($verticalJump) > 50) {
+        $errors[] = "Input pengukuran fisik terlalu panjang (maks. 50 karakter).";
     }
     
     if (empty($errors)) {
@@ -203,8 +198,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $sql = "UPDATE participant_assessments SET
                         participant_id = ?,
-                        coach_name = ?,
-                        assessment_date = ?,
+                        arm_span = ?,
+                        finger_span = ?,
+                        vertical_jump = ?,
                         criteria_data = ?,
                         chest_pass_prep = ?,
                         chest_pass_acc = ?,
@@ -221,8 +217,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtUp = $db->prepare($sql);
             $stmtUp->execute([
                 $participantId,
-                $coachNameInput,
-                $dateInput,
+                ($armSpan === '' ? null : $armSpan),
+                ($fingerSpan === '' ? null : $fingerSpan),
+                ($verticalJump === '' ? null : $verticalJump),
                 $criteriaDataJson,
                 $legacyMap['chest_pass_prep'],
                 $legacyMap['chest_pass_acc'],
@@ -248,8 +245,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     $a['participant_id'] = $participantId;
-    $a['coach_name'] = $coachNameInput;
-    $a['assessment_date'] = $dateInput;
+    $a['arm_span'] = $armSpan;
+    $a['finger_span'] = $fingerSpan;
+    $a['vertical_jump'] = $verticalJump;
     $a['notes'] = $notes;
 }
 
@@ -302,35 +300,53 @@ require_once __DIR__ . '/includes/header.php';
                 Identitas Penilaian
             </h3>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
                 <!-- Pilih Peserta -->
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="participant_id" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
                         Nama Peserta / Atlet <span style="color: var(--danger);">*</span>
                     </label>
                     <select name="participant_id" id="participant_id" class="form-control" required style="width: 100%;">
-                        <?php foreach ($participants as $p): ?>
-                            <option value="<?= $p['id'] ?>" <?= $a['participant_id'] == $p['id'] ? 'selected' : '' ?>>
+                        <?php foreach ($participants as $p): 
+                            $bYear = !empty($p['birth_date']) ? date('Y', strtotime($p['birth_date'])) : '-';
+                        ?>
+                            <option value="<?= $p['id'] ?>" data-birth-year="<?= e($bYear) ?>" <?= $a['participant_id'] == $p['id'] ? 'selected' : '' ?>>
                                 <?= e($p['name']) ?> (<?= $p['gender'] === 'L' ? 'Laki-laki' : 'Perempuan' ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <!-- Tanggal Observasi -->
+                <!-- Tahun Kelahiran (Otomatis dari Data Atlet) -->
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label for="assessment_date" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
-                        Tanggal Observasi <span style="color: var(--danger);">*</span>
+                    <label for="birth_year_display" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
+                        Tahun Kelahiran
                     </label>
-                    <input type="date" name="assessment_date" id="assessment_date" class="form-control" value="<?= e($a['assessment_date']) ?>" required style="width: 100%;">
+                    <input type="text" id="birth_year_display" class="form-control" value="-" readonly style="background-color: var(--bg-secondary); cursor: not-allowed; width: 100%;">
                 </div>
 
-                <!-- Pelatih / Penilai (Manual Input) -->
+                <!-- Rentang Tangan -->
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label for="coach_name" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
-                        Pelatih / Observer <span style="color: var(--danger);">*</span>
+                    <label for="arm_span" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
+                        Rentang Tangan (cm)
                     </label>
-                    <input type="text" name="coach_name" id="coach_name" class="form-control" value="<?= e($_POST['coach_name'] ?? $a['coach_name']) ?>" maxlength="100" required placeholder="Masukkan nama pelatih..." style="width: 100%;">
+                    <input type="text" name="arm_span" id="arm_span" class="form-control" value="<?= e($_POST['arm_span'] ?? ($a['arm_span'] ?? '')) ?>" maxlength="50" placeholder="Contoh: 175 cm" style="width: 100%;">
+                </div>
+
+                <!-- Rentang Jari -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="finger_span" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
+                        Rentang Jari (cm)
+                    </label>
+                    <input type="text" name="finger_span" id="finger_span" class="form-control" value="<?= e($_POST['finger_span'] ?? ($a['finger_span'] ?? '')) ?>" maxlength="50" placeholder="Contoh: 21 cm" style="width: 100%;">
+                </div>
+
+                <!-- Vertical Jump -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="vertical_jump" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; display: block;">
+                        Vertical Jump (cm)
+                    </label>
+                    <input type="text" name="vertical_jump" id="vertical_jump" class="form-control" value="<?= e($_POST['vertical_jump'] ?? ($a['vertical_jump'] ?? '')) ?>" maxlength="50" placeholder="Contoh: 55 cm" style="width: 100%;">
                 </div>
             </div>
         </div>
@@ -483,6 +499,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateLiveScore();
+
+    const participantSelect = document.getElementById('participant_id');
+    const birthYearDisplay = document.getElementById('birth_year_display');
+    function updateBirthYear() {
+        if (!participantSelect || !birthYearDisplay) return;
+        const opt = participantSelect.options[participantSelect.selectedIndex];
+        birthYearDisplay.value = (opt && opt.dataset.birthYear) ? opt.dataset.birthYear : '-';
+    }
+    if (participantSelect) {
+        participantSelect.addEventListener('change', updateBirthYear);
+        updateBirthYear();
+    }
 });
 </script>
 

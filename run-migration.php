@@ -77,11 +77,17 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
     echo "<p style='color: green;'>✓ Tabel <strong>participant_assessments</strong> berhasil dibuat / dipastikan ada.</p>";
 
-    // Add criteria_data column to participant_assessments if not exists
+    // Add criteria_data and physical measurement columns to participant_assessments if not exists
     $qCritData = $db->query("SHOW COLUMNS FROM participant_assessments LIKE 'criteria_data'");
     if ($qCritData->rowCount() == 0) {
         $db->exec("ALTER TABLE participant_assessments ADD COLUMN criteria_data LONGTEXT NULL DEFAULT NULL AFTER assessment_date");
         echo "<p style='color: green;'>✓ Berhasil menambahkan kolom <strong>criteria_data</strong> ke tabel <em>participant_assessments</em>.</p>";
+    }
+    foreach (['arm_span' => 'assessment_date', 'finger_span' => 'arm_span', 'vertical_jump' => 'finger_span'] as $col => $after) {
+        if ($db->query("SHOW COLUMNS FROM participant_assessments LIKE '$col'")->rowCount() == 0) {
+            $db->exec("ALTER TABLE participant_assessments ADD COLUMN $col VARCHAR(50) NULL DEFAULT NULL AFTER $after");
+            echo "<p style='color: green;'>✓ Berhasil menambahkan kolom <strong>$col</strong> ke tabel <em>participant_assessments</em>.</p>";
+        }
     }
 
     // Create assessment_groups table

@@ -39,10 +39,8 @@ if (!$a) {
     exit;
 }
 
-// Age calculation
-$birthDate = new DateTime($a['birth_date']);
-$today = new DateTime();
-$age = $today->diff($birthDate)->y;
+// Birth year calculation
+$birthYear = !empty($a['birth_date']) ? date('Y', strtotime($a['birth_date'])) : '-';
 
 // Total criteria
 $totalIndicators = (int)$a['score_e'] + (int)$a['score_ie'];
@@ -143,13 +141,9 @@ require_once __DIR__ . '/includes/header.php';
                 Game Performance Assessment Instrument &middot; Crown Basketball Academy
             </div>
         </div>
-        <div style="text-align: right;">
-            <div style="font-size: 0.8rem; color: var(--text-secondary);">Tanggal Observasi:</div>
-            <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);"><?= formatIndoDate($a['assessment_date']) ?></div>
-        </div>
     </div>
 
-    <!-- Athlete & Coach Profile Info Grid -->
+    <!-- Athlete & Physical Measurement Info Grid -->
     <div style="background-color: var(--bg-primary); border: 1px solid var(--bg-tertiary); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
         <div style="display: flex; gap: 18px; align-items: center; flex-wrap: wrap;">
             <?php if (!empty($a['participant_photo'])): ?>
@@ -161,22 +155,29 @@ require_once __DIR__ . '/includes/header.php';
             <?php endif; ?>
 
             <div style="flex: 1; min-width: 240px;">
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">
                     <a href="participant-detail.php?id=<?= $a['participant_id'] ?>" style="color: inherit; text-decoration: none;">
                         <?= e($a['participant_name']) ?>
                     </a>
                 </div>
                 <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary);">
-                    <span>Gender: <strong style="color: var(--text-primary);"><?= $a['participant_gender'] === 'L' ? 'Laki-laki' : 'Perempuan' ?></strong></span>
-                    <span>Usia: <strong style="color: var(--text-primary);"><?= $age ?></strong></span>
-                    <span>Sekolah: <strong style="color: var(--text-primary);"><?= e($a['school_name'] ?: '-') ?></strong></span>
+                    <span>Jenis Kelamin: <strong style="color: var(--text-primary);"><?= $a['participant_gender'] === 'L' ? 'Laki-laki' : 'Perempuan' ?></strong></span>
+                    <span>Tahun Kelahiran: <strong style="color: var(--text-primary);"><?= e($birthYear) ?></strong></span>
                 </div>
             </div>
 
-            <div style="border-left: 1px solid var(--bg-tertiary); padding-left: 20px;">
-                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 2px;">Coach Penilai:</div>
-                <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">
-                    <?= e($a['coach_name']) ?>
+            <div style="display: flex; gap: 18px; flex-wrap: wrap; border-left: 1px solid var(--bg-tertiary); padding-left: 20px;">
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 2px;">Rentang Tangan</div>
+                    <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);"><?= formatMeasurement($a['arm_span'] ?? '') ?></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 2px;">Rentang Jari</div>
+                    <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary);"><?= formatMeasurement($a['finger_span'] ?? '') ?></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 2px;">Vertical Jump</div>
+                    <div style="font-size: 1rem; font-weight: 700; color: var(--accent);"><?= formatMeasurement($a['vertical_jump'] ?? '') ?></div>
                 </div>
             </div>
         </div>

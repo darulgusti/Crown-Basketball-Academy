@@ -31,11 +31,9 @@ if (!$a) {
     die("Data penilaian tidak ditemukan.");
 }
 
-$age = '-';
+$birthYear = '-';
 if (!empty($a['birth_date'])) {
-    $bDate = new DateTime($a['birth_date']);
-    $today = new DateTime($a['assessment_date']);
-    $age = $today->diff($bDate)->y . ' Tahun';
+    $birthYear = date('Y', strtotime($a['birth_date']));
 }
 
 $totalIndicators = (int)$a['score_e'] + (int)$a['score_ie'];
@@ -241,20 +239,20 @@ if (empty($snapshotGroups)) {
         <tr>
             <td class="info-label">Nama Atlet / Peserta</td>
             <td>: <strong><?= e($a['participant_name']) ?></strong></td>
-            <td class="info-label">Tanggal Observasi</td>
-            <td>: <?= formatIndoDate($a['assessment_date']) ?></td>
+            <td class="info-label">Rentang Tangan</td>
+            <td>: <strong><?= formatMeasurement($a['arm_span'] ?? '') ?></strong></td>
         </tr>
         <tr>
             <td class="info-label">Jenis Kelamin</td>
             <td>: <?= $a['participant_gender'] === 'L' ? 'Laki-laki' : 'Perempuan' ?></td>
-            <td class="info-label">Coach Penilai</td>
-            <td>: <strong><?= e($a['coach_name']) ?></strong></td>
+            <td class="info-label">Rentang Jari</td>
+            <td>: <strong><?= formatMeasurement($a['finger_span'] ?? '') ?></strong></td>
         </tr>
         <tr>
-            <td class="info-label">Usia</td>
-            <td>: <?= $age ?></td>
-            <td class="info-label">Asal Sekolah</td>
-            <td>: <?= e($a['school_name'] ?: '-') ?></td>
+            <td class="info-label">Tahun Kelahiran</td>
+            <td>: <?= e($birthYear) ?></td>
+            <td class="info-label">Vertical Jump</td>
+            <td>: <strong><?= formatMeasurement($a['vertical_jump'] ?? '') ?></strong></td>
         </tr>
     </table>
 

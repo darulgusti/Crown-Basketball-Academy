@@ -277,6 +277,9 @@ function ensureAssessmentTables($db) {
                 coach_id INT DEFAULT NULL,
                 coach_name VARCHAR(100) NOT NULL,
                 assessment_date DATE NOT NULL,
+                arm_span VARCHAR(50) NULL DEFAULT NULL,
+                finger_span VARCHAR(50) NULL DEFAULT NULL,
+                vertical_jump VARCHAR(50) NULL DEFAULT NULL,
                 criteria_data LONGTEXT NULL DEFAULT NULL,
                 chest_pass_prep ENUM('E', 'IE') NOT NULL DEFAULT 'E',
                 chest_pass_acc ENUM('E', 'IE') NOT NULL DEFAULT 'E',
@@ -300,6 +303,15 @@ function ensureAssessmentTables($db) {
         } else {
             if ($db->query("SHOW COLUMNS FROM participant_assessments LIKE 'criteria_data'")->rowCount() === 0) {
                 $db->exec("ALTER TABLE participant_assessments ADD COLUMN criteria_data LONGTEXT NULL DEFAULT NULL AFTER assessment_date");
+            }
+            if ($db->query("SHOW COLUMNS FROM participant_assessments LIKE 'arm_span'")->rowCount() === 0) {
+                $db->exec("ALTER TABLE participant_assessments ADD COLUMN arm_span VARCHAR(50) NULL DEFAULT NULL AFTER assessment_date");
+            }
+            if ($db->query("SHOW COLUMNS FROM participant_assessments LIKE 'finger_span'")->rowCount() === 0) {
+                $db->exec("ALTER TABLE participant_assessments ADD COLUMN finger_span VARCHAR(50) NULL DEFAULT NULL AFTER arm_span");
+            }
+            if ($db->query("SHOW COLUMNS FROM participant_assessments LIKE 'vertical_jump'")->rowCount() === 0) {
+                $db->exec("ALTER TABLE participant_assessments ADD COLUMN vertical_jump VARCHAR(50) NULL DEFAULT NULL AFTER finger_span");
             }
         }
 
@@ -416,6 +428,23 @@ function getTrainingDays($db) {
     }
 
     return $db->query("SELECT * FROM training_days ORDER BY FIELD(day_name, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu Sesi 1', 'Sabtu Sesi 2', 'Minggu Sesi 1', 'Minggu Sesi 2'), id ASC")->fetchAll();
+}
+
+/**
+ * Format measurement value with 'cm' unit if not already present.
+ *
+ * @param string|null $val
+ * @return string
+ */
+function formatMeasurement($val) {
+    $val = trim((string)$val);
+    if ($val === '') {
+        return '-';
+    }
+    if (stripos($val, 'cm') === false) {
+        return e($val) . ' cm';
+    }
+    return e($val);
 }
 
 
